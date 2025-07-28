@@ -719,32 +719,435 @@
         };
         
         // Country names - now modifiable
-        let countryNames = {
-            'FRA': 'France', 'ENG': 'England', 'CAS': 'Castile', 'POR': 'Portugal',
-            'AUS': 'Austria', 'OTT': 'Ottomans', 'MOS': 'Muscovy', 'POL': 'Poland',
-            'SWE': 'Sweden', 'DAN': 'Denmark', 'BRA': 'Brandenburg', 'VEN': 'Venice',
-            'SAV': 'Savoy', 'PAP': 'Papal States', 'HOL': 'Holland', 'MAM': 'Mamluks',
-            'TIM': 'Timurids', 'MOR': 'Morocco', 'ETH': 'Ethiopia', 'JAP': 'Japan',
-            'MIN': 'Ming', 'AYU': 'Ayutthaya', 'VIJ': 'Vijayanagar', 'BAH': 'Bahmanis',
-            'HUN': 'Hungary', 'BOH': 'Bohemia', 'NAP': 'Naples', 'ARA': 'Aragon',
-            'BUR': 'Burgundy', 'LIT': 'Lithuania', 'TEU': 'Teutonic Order', 'NOV': 'Novgorod',
-            'GEN': 'Genoa', 'MIL': 'Milan', 'BAV': 'Bavaria', 'SPA': 'Spain',
-            'GBR': 'Great Britain', 'RUS': 'Russia', 'PER': 'Persia', 'MUG': 'Mughals',
-            'QNG': 'Qing', 'PRU': 'Prussia', 'NED': 'Netherlands', 'ITA': 'Italy',
-            'GER': 'Germany', 'REB': 'Rebels', 'PIR': 'Pirates', 'NAT': 'Natives'
+     const countryNames = {
+            // Major European Powers
+            'SWE': 'Sweden', 'DAN': 'Denmark', 'NOR': 'Norway',
+            'ENG': 'England', 'GBR': 'Great Britain', 'SCO': 'Scotland', 'IRE': 'Ireland',
+            'FRA': 'France', 'BUR': 'Burgundy', 'BRI': 'Brittany', 'PRO': 'Provence',
+            'CAS': 'Castile', 'ARA': 'Aragon', 'SPA': 'Spain', 'POR': 'Portugal',
+            'NAV': 'Navarra', 'GRA': 'Granada', 'GAL': 'Galicia', 'CAT': 'Catalonia',
+            'ASU': 'Asturias', 'LON': 'León',
+            
+            // Italian States
+            'PAP': 'Papal States', 'VEN': 'Venice', 'GEN': 'Genoa', 'SAV': 'Savoy',
+            'MIL': 'Milan', 'NAP': 'Naples', 'SIC': 'Sicily', 'TUS': 'Tuscany',
+            'MOD': 'Modena', 'FER': 'Ferrara', 'MAN': 'Mantua', 'LUC': 'Lucca',
+            'SIE': 'Siena', 'URB': 'Urbino', 'FLO': 'Florence', 'MLO': 'Milan',
+            'PIS': 'Pisa', 'AQU': 'Aquileia', 'VER': 'Verona', 'PDV': 'Padua',
+            'PAR': 'Parma', 'SPL': 'Spoleto', 'ANC': 'Ancona', 'PGA': 'Perugia',
+            'RMG': 'Romagna', 'SAL': 'Saluzzo', 'MFA': 'Montferrat', 'SZO': 'Savoyard',
+            
+            // HRE States
+            'AUS': 'Austria', 'HAB': 'Austria', 'BOH': 'Bohemia', 'HUN': 'Hungary',
+            'POL': 'Poland', 'MAZ': 'Mazovia', 'LIT': 'Lithuania', 'TEU': 'Teutonic Order',
+            'LIV': 'Livonian Order', 'RIG': 'Riga', 'BRA': 'Brandenburg', 'PRU': 'Prussia',
+            'POM': 'Pomerania', 'MEC': 'Mecklenburg', 'SAX': 'Saxony', 'BAV': 'Bavaria',
+            'PAL': 'Palatinate', 'HAN': 'Hanover', 'WES': 'Westphalia', 'HES': 'Hesse',
+            'THU': 'Thuringia', 'KOL': 'Cologne', 'TRI': 'Trier', 'MAI': 'Mainz',
+            'WUR': 'Würzburg', 'NUM': 'Nuremberg', 'ULM': 'Ulm', 'AUG': 'Augsburg',
+            'FRN': 'Franconia', 'SWI': 'Switzerland', 'GNV': 'Geneva', 'HAM': 'Hamburg',
+            'BRE': 'Bremen', 'OLD': 'Oldenburg', 'BRU': 'Brunswick', 'LUN': 'Lüneburg',
+            'VER': 'Verden', 'MAG': 'Magdeburg', 'ANH': 'Anhalt', 'DTT': 'Dithmarschen',
+            'MKL': 'Mecklenburg', 'STT': 'Stettin', 'WOL': 'Wolgast', 'RUG': 'Rügen',
+            'SLZ': 'Salzburg', 'STY': 'Styria', 'TIR': 'Tirol', 'GOR': 'Görz',
+            'AQI': 'Aquileia', 'TRT': 'Trent', 'BRX': 'Brixen', 'REG': 'Regensburg',
+            'ING': 'Ingolstadt', 'LAN': 'Landshut', 'MUN': 'Munich', 'MEM': 'Memmingen',
+            'KNZ': 'Konstanz', 'ROT': 'Rothenburg', 'ANS': 'Ansbach', 'WBG': 'Würtemburg',
+            'BAD': 'Baden', 'HEI': 'Heidelberg', 'FRK': 'Frankfurt', 'NAS': 'Nassau',
+            'DAR': 'Darmstadt', 'KLE': 'Cleves', 'BRG': 'Berg', 'MRK': 'Mark',
+            'RVN': 'Ravensburg', 'AAC': 'Aachen', 'MNS': 'Münster', 'OSN': 'Osnabrück',
+            'EFR': 'East Frisia', 'FRV': 'Friesland', 'UTR': 'Utrecht', 'HOL': 'Holland',
+            'GEL': 'Gelre', 'LIE': 'Liège', 'LUX': 'Luxembourg', 'BAR': 'Bar',
+            'LOR': 'Lorraine', 'ALS': 'Alsace', 'TPR': 'Three Leagues', 'BER': 'Bern',
+            
+            // Low Countries
+            'BRB': 'Brabant', 'FLA': 'Flanders', 'HAI': 'Hainaut', 'HOL': 'Holland',
+            'ZEL': 'Zeeland', 'FRI': 'Friesland', 'GRO': 'Groningen', 'OVE': 'Overijssel',
+            'DRE': 'Drenthe', 'TWE': 'Twente', 'NED': 'Netherlands', 'BEL': 'Belgium',
+            
+            // Eastern Europe
+            'MOS': 'Muscovy', 'RUS': 'Russia', 'NOV': 'Novgorod', 'PSK': 'Pskov',
+            'TVE': 'Tver', 'RYA': 'Ryazan', 'YAR': 'Yaroslavl', 'NZH': 'Nizhny Novgorod',
+            'PRM': 'Perm', 'VYA': 'Vyatka', 'BLO': 'Beloozero', 'RST': 'Rostov',
+            'KAZ': 'Kazan', 'GOL': 'Golden Horde', 'GLH': 'Great Horde', 'NOG': 'Nogai',
+            'CRI': 'Crimea', 'AST': 'Astrakhan', 'SIB': 'Sibir', 'PLT': 'Polotsk',
+            'KIE': 'Kiev', 'CHR': 'Chernigov', 'ZAZ': 'Zaporozhie', 'MOL': 'Moldavia',
+            'WAL': 'Wallachia', 'SER': 'Serbia', 'BOS': 'Bosnia', 'ALB': 'Albania',
+            'BUL': 'Bulgaria', 'BYZ': 'Byzantium', 'GRE': 'Greece', 'CYP': 'Cyprus',
+            'KNI': 'Knights', 'ACH': 'Achaea', 'ATH': 'Athens', 'NAX': 'Naxos',
+            'CEP': 'Corfu', 'MOE': 'Morea', 'EPI': 'Epirus', 'CRE': 'Crete',
+            'CRT': 'Crete', 'RAG': 'Ragusa', 'HRV': 'Croatia', 'SLO': 'Nitra',
+            'TRA': 'Transylvania', 'SLV': 'Slovakia', 'VOL': 'Volhynia', 'DNZ': 'Danzig',
+            'KRA': 'Krakow', 'SIL': 'Silesia', 'WLK': 'Wielkopolska', 'KUJ': 'Kuyavia',
+            'SAN': 'Sandomierz', 'RED': 'Red Ruthenia', 'PDL': 'Podlasie',
+            
+            // Anatolia & Caucasus
+            'OTT': 'Ottoman Empire', 'TUR': 'Ottoman Empire', 'ANA': 'Anatolia',
+            'CND': 'Candar', 'KAR': 'Karaman', 'DUL': 'Dulkadir', 'RAM': 'Ramazan',
+            'TRE': 'Trebizond', 'GEO': 'Georgia', 'IME': 'Imereti', 'SME': 'Samtskhe',
+            'ARM': 'Armenia', 'CIR': 'Circassia', 'GAZ': 'Gazikumukh', 'AVR': 'Avaria',
+            'MLK': 'Theodoro', 'SHR': 'Shirvan', 'AKK': 'Aq Qoyunlu', 'QAR': 'Qara Qoyunlu',
+            'BPI': 'Biapas', 'MSY': 'Mushasha', 'KRY': 'Gilan', 'TAB': 'Tabarestan',
+            'ARL': 'Ardalan', 'LRI': 'Luristan', 'BTL': 'Bitlis', 'HDK': 'Hisn Kayfa',
+            'ERZ': 'Erzurum', 'AYD': 'Aydin', 'MEN': 'Mentese', 'SAR': 'Saruhan',
+            'GRM': 'Germiyan', 'HAM': 'Hamid', 'TEK': 'Tekke', 'SRU': 'Sarukhan',
+            
+            // Middle East
+            'MAM': 'Mamluks', 'EGY': 'Egypt', 'ARB': 'Arabia', 'HED': 'Hedjaz',
+            'YEM': 'Yemen', 'RAS': 'Rassids', 'OMA': 'Oman', 'SHM': 'Shammar',
+            'ANZ': 'Anizah', 'FAD': 'Fadl', 'NJD': 'Najd', 'HAA': 'Haasa',
+            'MHR': 'Mahra', 'ADE': 'Aden', 'DAW': 'Dawasir', 'MDA': 'Medina',
+            'MFL': 'Mikhlaf', 'NJR': 'Najran', 'ASI': 'Asir', 'JBR': 'Jabal Shammar',
+            'BHR': 'Bahrain', 'QAT': 'Qatar', 'ABU': 'Abu Dhabi', 'ORM': 'Hormuz',
+            'YAS': 'Yas', 'SHJ': 'Sharjah', 'KUW': 'Kuwait', 'BSR': 'Basra',
+            
+            // Persia & Central Asia
+            'PER': 'Persia', 'KHO': 'Khorasan', 'AFG': 'Afghanistan', 'TIM': 'Timurids',
+            'TRS': 'Transoxiana', 'SIS': 'Sistan', 'KRM': 'Kerman', 'YZD': 'Yazd',
+            'ISF': 'Isfahan', 'FRS': 'Fars', 'LUR': 'Luristan', 'TBR': 'Tabriz',
+            'BUK': 'Bukhara', 'KHI': 'Khiva', 'KOK': 'Kokand', 'KZH': 'Kazakh',
+            'CHG': 'Chagatai', 'MGH': 'Moghulistan', 'OIR': 'Oirat', 'MNG': 'Mongolia',
+            'KHA': 'Mongolia', 'ZUN': 'Dzungar', 'KLK': 'Kalmyk', 'BAL': 'Baluchistan',
+            'MAK': 'Makran', 'KAL': 'Kalat', 'KDH': 'Kandahar', 'GHO': 'Ghor',
+            'BAM': 'Bamyan', 'KAB': 'Kabul', 'KAS': 'Kashmir', 'LAD': 'Ladakh',
+            
+            // Africa
+            'MOR': 'Morocco', 'FEZ': 'Fez', 'TUN': 'Tunis', 'TLC': 'Tlemcen',
+            'ALG': 'Algiers', 'TRP': 'Tripoli', 'FZN': 'Fezzan', 'CYR': 'Cyrenaica',
+            'ETH': 'Ethiopia', 'NUB': 'Nubia', 'MAK': 'Makuria', 'ADA': 'Adal',
+            'AJU': 'Ajuuraan', 'MDI': 'Medri Bahri', 'MLI': 'Mali', 'SON': 'Songhai',
+            'TMB': 'Timbuktu', 'JNN': 'Jenné', 'MSI': 'Mossi', 'YAT': 'Yatenga',
+            'WAG': 'Wagadugu', 'HAU': 'Hausa', 'KBO': 'Kanem Bornu', 'YAO': 'Yao',
+            'DAR': 'Darfur', 'FNJ': 'Funj', 'KON': 'Kongo', 'NDO': 'Ndongo',
+            'LOA': 'Loango', 'KUB': 'Kuba', 'LUB': 'Luba', 'LND': 'Lunda',
+            'KZB': 'Kazembe', 'YAK': 'Yaka', 'KSJ': 'Kasanje', 'MUT': 'Mutapa',
+            'RZW': 'Rozwi', 'BTU': 'Butua', 'ZIM': 'Zimbabwe', 'KLW': 'Kilwa',
+            'MOM': 'Mombasa', 'PTT': 'Pate', 'SFA': 'Sofala', 'ANN': 'Antemoro',
+            'SKL': 'Sakalava', 'MFY': 'Mahafaly', 'MDG': 'Imerina', 'BTL': 'Betsimisaraka',
+            'ASH': 'Ashanti', 'DAH': 'Dahomey', 'OYO': 'Oyo', 'BEN': 'Benin',
+            'NUP': 'Nupe', 'KAN': 'Kano', 'KTS': 'Katsina', 'ZAZ': 'Zazzau',
+            'AIR': 'Air', 'KNM': 'Kanem', 'BAG': 'Bagirmi', 'BON': 'Bonoman',
+            'DAG': 'Dagbon', 'FUL': 'Fulo', 'FUT': 'Futa Jallon', 'KBU': 'Kaabu',
+            'SOS': 'Soso', 'DEN': 'Denkyira', 'AKW': 'Akwamu',
+            
+            // India
+            'MUG': 'Mughals', 'DLH': 'Delhi', 'SRH': 'Sirhind', 'PUN': 'Punjab',
+            'MUL': 'Multan', 'KSH': 'Kashmir', 'SND': 'Sind', 'JAN': 'Jaunpur',
+            'MEW': 'Mewar', 'MAW': 'Malwa', 'DHU': 'Dhundhar', 'GUJ': 'Gujarat',
+            'MAL': 'Malwa', 'JDU': 'Jangladesh', 'BNG': 'Bengal', 'ORI': 'Orissa',
+            'GDW': 'Gondwana', 'GAR': 'Garha', 'BST': 'Bastar', 'BAH': 'Bahmanis',
+            'BIJ': 'Bijapur', 'GOC': 'Golconda', 'BRR': 'Berar', 'AHM': 'Ahmadnagar',
+            'VIJ': 'Vijayanagar', 'MYS': 'Mysore', 'MAD': 'Madurai', 'TNJ': 'Tanjore',
+            'CEY': 'Ceylon', 'KND': 'Kandy', 'KOT': 'Kotte', 'JFN': 'Jaffna',
+            'MDV': 'Maldives', 'NPL': 'Nepal', 'GRK': 'Gorkha', 'SRM': 'Sirmur',
+            'KMT': 'Kumaon', 'GWL': 'Gwalior', 'KGR': 'Kangra', 'KTM': 'Kathmandu',
+            'BTN': 'Bhutan', 'ASS': 'Assam', 'MNP': 'Manipur', 'TRP': 'Tripura',
+            'KOC': 'Koch', 'SDY': 'Sadiya', 'BGL': 'Bagelkhand', 'KLP': 'Kalpi',
+            'BND': 'Bundelkhand', 'ODH': 'Oudh', 'VER': 'Venad', 'KOZ': 'Kozhikode',
+            'KOL': 'Kolhapur', 'MAH': 'Maharashtra', 'NAG': 'Nagpur', 'PAN': 'Panchala',
+            'GAJ': 'Gajapati', 'JHA': 'Jharkhand', 'GRJ': 'Garjat', 'RAJ': 'Rajkot',
+            'IDR': 'Idar', 'NAV': 'Navanagar', 'JUN': 'Junagarh', 'POR': 'Porbandar',
+            'PAL': 'Palitana', 'JAI': 'Jaipur', 'BKN': 'Bikaner', 'JSL': 'Jaisalmer',
+            'MER': 'Marwar', 'HAD': 'Hadoti', 'RJP': 'Rewa Kantha', 'BAG': 'Baghelkhand',
+            'PTA': 'Patiala', 'SIK': 'Sikhism', 'LAH': 'Lahore', 'FRK': 'Farrukhabad',
+            'KAS': 'Kachar', 'BAC': 'Bahawalpur', 'VEN': 'Venad', 'TRV': 'Travancore',
+            'COC': 'Cochin', 'MAB': 'Malabar', 'KER': 'Kerala',
+            
+            // Southeast Asia
+            'AYU': 'Ayutthaya', 'SUK': 'Sukhothai', 'LNA': 'Lan Na', 'LXA': 'Lan Xang',
+            'LUA': 'Luang Prabang', 'VIE': 'Dai Viet', 'CHA': 'Champa', 'KHM': 'Khmer',
+            'DAI': 'Dai Viet', 'TON': 'Tonkin', 'ANN': 'Annam', 'CHP': 'Champasak',
+            'PAT': 'Pattani', 'KED': 'Kedah', 'JOH': 'Johor', 'PRK': 'Perak',
+            'PLB': 'Palembang', 'PSI': 'Pasai', 'SAK': 'Siak', 'JAM': 'Jambi',
+            'BEI': 'Brunei', 'SUL': 'Sulu', 'MGD': 'Maguindanao', 'LNO': 'Lanao',
+            'BTN': 'Butuan', 'CSU': 'Cebu', 'PAN': 'Pangasinan', 'TDO': 'Tondo',
+            'MYN': 'Maynila', 'MAJ': 'Majapahit', 'SUN': 'Sunda', 'BLM': 'Bali',
+            'BNJ': 'Banjar', 'KUT': 'Kutai', 'BON': 'Bone', 'LUW': 'Luwu',
+            'BTR': 'Buton', 'TER': 'Ternate', 'TID': 'Tidore', 'MAK': 'Makassar',
+            'ACE': 'Aceh', 'DLI': 'Deli', 'PGR': 'Pagarruyung', 'IDR': 'Indrapura',
+            'BAR': 'Barus', 'PSM': 'Perlak', 'MLK': 'Malacca', 'NSP': 'Negeri Sembilan',
+            'SGP': 'Singapore', 'LIG': 'Ligor', 'PKT': 'Phuket', 'ARK': 'Arakan',
+            'PRM': 'Prome', 'PEG': 'Pegu', 'TAU': 'Taungu', 'AVA': 'Ava',
+            'HSE': 'Hsenwi', 'MMT': 'Mong Mit', 'MKA': 'Mong Kawng', 'MYA': 'Mong Yang',
+            'KAL': 'Kale', 'MMA': 'Mong Mao', 'MMI': 'Mong Pai', 'SST': 'Shan',
+            
+            // China & East Asia
+            'MIN': 'Ming', 'QNG': 'Qing', 'CSH': 'Shun', 'CXI': 'Xi', 'YUA': 'Yuan',
+            'MCH': 'Manchu', 'JRC': 'Jurchens', 'MHX': 'Ming', 'MJZ': 'Ming',
+            'KOR': 'Korea', 'GRT': 'Goryeo', 'YUE': 'Yue', 'WUU': 'Wu',
+            'CHC': 'Changsheng', 'QIC': 'Qi', 'YAN': 'Yan', 'JIN': 'Jin',
+            'LNG': 'Liang', 'SHU': 'Shu', 'NNG': 'Ning', 'TNG': 'Tang',
+            'CDL': 'Dali', 'CHD': 'Chengdu', 'CHS': 'Changsha', 'HNA': 'Huai',
+            'SNG': 'Song', 'HNG': 'Huguang', 'CMI': 'Chu', 'CGD': 'Guangdong',
+            
+            // Japan
+            'JAP': 'Japan', 'ASK': 'Ashikaga', 'ODA': 'Oda', 'DTE': 'Date',
+            'IMG': 'Imagawa', 'MAE': 'Maeda', 'TKD': 'Takeda', 'UES': 'Uesugi',
+            'YMN': 'Yamana', 'HSK': 'Hosokawa', 'HTK': 'Hatakeyama', 'OTM': 'Otomo',
+            'OUC': 'Ouchi', 'SHN': 'Shimazu', 'AMA': 'Amago', 'RYU': 'Ryukyu',
+            'AIN': 'Ainu', 'TKG': 'Tokugawa', 'HJO': 'Hojo', 'CHO': 'Chosokabe',
+            'MRI': 'Mori', 'ASA': 'Asakura', 'AZI': 'Azai', 'STM': 'Satomi',
+            'ITO': 'Ito', 'OGS': 'Ogasawara', 'KKC': 'Kikuchi', 'SBA': 'Shiba',
+            'UTN': 'Utsunomiya', 'NNB': 'Nanbu', 'AND': 'Ando', 'SAT': 'Satake',
+            'ASN': 'Ashina', 'KBY': 'Kobayakawa', 'TKK': 'Takahashi', 'CHB': 'Chiba',
+            'KNO': 'Kono', 'KKU': 'Kikkawa', 'YMZ': 'Yamauchi', 'ISH': 'Ishida',
+            'TKM': 'Tokuyama', 'TKC': 'Tsutsui', 'HNM': 'Honma', 'SHO': 'Shoni',
+            'AKM': 'Akiyama', 'KTB': 'Kitabatake', 'ISE': 'Isshiki', 'OTN': 'Otani',
+            'MYS': 'Miyoshi', 'AKC': 'Akechi', 'HCH': 'Hachisuka', 'KMK': 'Konishi',
+            'KUR': 'Kuroda', 'NBN': 'Nabeshima', 'KAT': 'Kato', 'TODO': 'Todo',
+            'IKD': 'Ikeda', 'KYG': 'Kyogoku', 'ASO': 'Aso', 'SGK': 'Sagara',
+            'OMR': 'Omura', 'ARI': 'Arima', 'GOT': 'Goto',
+            
+            // Americas
+            'AZT': 'Aztec', 'TLX': 'Tlaxcala', 'ZAP': 'Zapotec', 'MIX': 'Mixtec',
+            'TOP': 'Totonac', 'TAR': 'Tarascan', 'OTO': 'Otomi', 'GME': 'Guamar',
+            'HUE': 'Huastec', 'CCM': 'Chichimeca', 'MAY': 'Maya', 'KIC': 'Kiche',
+            'ITZ': 'Itza', 'XIU': 'Xiu', 'COC': 'Cocomes', 'INC': 'Inca',
+            'CUS': 'Cusco', 'CCQ': 'Chincha', 'CJA': 'Cajamarca', 'HJA': 'Huanca',
+            'PCJ': 'Pacajes', 'CRA': 'Charca', 'MCA': 'Muisca', 'QUI': 'Quito',
+            'CAN': 'Carib', 'ARW': 'Arawak', 'TPA': 'Tupinamba', 'TPQ': 'Tupiniquim',
+            'GUA': 'Guarani', 'PTG': 'Potiguara', 'CRT': 'Charrua', 'MPU': 'Mapuche',
+            'TEH': 'Tehuelche', 'HRP': 'Huarpe', 'DIG': 'Diaguita',
+            
+            // North American Natives
+            'HUR': 'Huron', 'IRO': 'Iroquois', 'CHE': 'Cherokee', 'POW': 'Powhatan',
+            'SUS': 'Susquehannock', 'SHA': 'Shawnee', 'MIA': 'Miami', 'ILL': 'Illinois',
+            'CAD': 'Caddo', 'CRK': 'Creek', 'CHI': 'Chickasaw', 'CHO': 'Choctaw',
+            'NAT': 'Natchez', 'COM': 'Comanche', 'APA': 'Apache', 'NAH': 'Navajo',
+            'PUE': 'Pueblo', 'ZUN': 'Zuni', 'SHO': 'Shoshone', 'ARP': 'Arapaho',
+            'BLA': 'Blackfoot', 'CRW': 'Crow', 'PAW': 'Pawnee', 'WIC': 'Wichita',
+            'KIO': 'Kiowa', 'OSA': 'Osage', 'FOX': 'Fox', 'SAU': 'Sauk',
+            'MEN': 'Menominee', 'WIN': 'Winnebago', 'OJI': 'Ojibwe', 'OTT': 'Ottawa',
+            'CRP': 'Cree', 'ASI': 'Assiniboine', 'CHY': 'Cheyenne', 'SIO': 'Sioux',
+            'DAK': 'Dakota', 'LAK': 'Lakota', 'MAN': 'Mandan', 'HID': 'Hidatsa',
+            'ARI': 'Arikara', 'CHN': 'Chinook', 'SAL': 'Salish', 'HAI': 'Haida',
+            'TLI': 'Tlingit', 'ALE': 'Aleut', 'INI': 'Inuit', 'MIK': 'Mikmaq',
+            'ABE': 'Abenaki', 'PEQ': 'Pequot', 'LEN': 'Lenape', 'SEM': 'Seminole',
+            'MOH': 'Mohican', 'ONE': 'Oneida', 'CAY': 'Cayuga', 'ONO': 'Onondaga',
+            'SEN': 'Seneca', 'TUS': 'Tuscarora',
+            
+            // Colonial & Revolutionary tags
+            'USA': 'United States', 'MEX': 'Mexico', 'QUE': 'Quebec', 'CAN': 'Canada',
+            'TEX': 'Texas', 'CAL': 'California', 'LOU': 'Louisiana', 'FLO': 'Florida',
+            'VRG': 'Virginia', 'PRG': 'Paraguay', 'CHL': 'Chile', 'LAP': 'La Plata',
+            'COL': 'Colombia', 'VNZ': 'Venezuela', 'PEU': 'Peru', 'BRZ': 'Brazil',
+            'HAT': 'Haiti', 'CUB': 'Cuba', 'AUS': 'Australia', 'NZL': 'New Zealand',
+            
+            // Additional tags
+            'REB': 'Rebels', 'PIR': 'Pirates', 'NAT': 'Natives'
         };
         
-        // EU4 Colors - now modifiable
-        let eu4Colors = {
-            'FRA': '#0055A4', 'ENG': '#AB4444', 'CAS': '#F9D90F', 'POR': '#008C48',
-            'AUS': '#FFFFFF', 'OTT': '#A3C5A3', 'MOS': '#2D5016', 'POL': '#C00026',
-            'SWE': '#0E5490', 'DAN': '#C91E2B', 'BRA': '#B4B4B4', 'VEN': '#6AAADD',
-            'SAV': '#FEFEFE', 'PAP': '#FAF1CA', 'HOL': '#FF8C00', 'MAM': '#F3DE8A',
-            'TIM': '#CE5C36', 'MOR': '#C1665A', 'ETH': '#967117', 'JAP': '#8E1419',
-            'MIN': '#FCDD5C', 'AYU': '#B5DB9B', 'VIJ': '#F97306', 'BAH': '#50AA50',
-            'HUN': '#cc9a70', 'BOH': '#A57C51', 'NAP': '#F4C2C2', 'ARA': '#D5001F',
-            'BUR': '#A44A20', 'LIT': '#750137', 'TEU': '#787878', 'NOV': '#4CBB6C',
-            'GEN': '#FDC04C', 'MIL': '#00AA4D', 'BAV': '#007FBF', 'REB': '#404040'
+        // EU4 Official Country Colors (RGB format)
+        const eu4Colors = {
+            // Major European Powers
+            'SWE': '#0E5490', 'DAN': '#C91E2B', 'NOR': '#CC5757',
+            'ENG': '#AB4444', 'GBR': '#C50049', 'SCO': '#F6E334', 'IRE': '#01684B',
+            'FRA': '#0055A4', 'BUR': '#A44A20', 'BRI': '#8D6E2D', 'PRO': '#55ACEE',
+            'CAS': '#F9D90F', 'ARA': '#D5001F', 'SPA': '#C1B100', 'POR': '#008C48',
+            'NAV': '#5D1D8D', 'GRA': '#ededed', 'GAL': '#1E7FCD', 'CAT': '#FECB00',
+            
+            // Italian States
+            'PAP': '#FAF1CA', 'VEN': '#6AAADD', 'GEN': '#FDC04C', 'SAV': '#FEFEFE',
+            'MIL': '#00AA4D', 'NAP': '#F4C2C2', 'SIC': '#BD9D56', 'TUS': '#D64E42',
+            'MOD': '#2AA64C', 'FER': '#1CA44A', 'MAN': '#FFC7C7', 'LUC': '#6C4DA0',
+            'SIE': '#F0E6D2', 'URB': '#FFD966', 'FLO': '#C12525', 'MLO': '#00AA4D',
+            'PIS': '#0088CC', 'AQU': '#6ED7E7', 'VER': '#00AA00', 'PDV': '#D14A1E',
+            'PAR': '#4169E1', 'SPL': '#FFFF00', 'ANC': '#FFD700', 'PGA': '#CD5C5C',
+            
+            // HRE States
+            'AUS': '#FFFFFF', 'HAB': '#FFFFFF', 'BOH': '#A57C51', 'HUN': '#cc9a70',
+            'POL': '#C00026', 'MAZ': '#C846C8', 'LIT': '#750137', 'TEU': '#787878',
+            'LIV': '#57292d', 'RIG': '#f0afb4', 'BRA': '#B4B4B4', 'PRU': '#003153',
+            'POM': '#6B8E23', 'MEC': '#668CA7', 'SAX': '#D4D4D4', 'BAV': '#007FBF',
+            'PAL': '#F9C259', 'HAN': '#FF5353', 'WES': '#009900', 'HES': '#DA251D',
+            'THU': '#00AA00', 'KOL': '#3399FF', 'TRI': '#C88FBB', 'MAI': '#FF9999',
+            'WUR': '#9F1313', 'NUM': '#CE5C36', 'ULM': '#FFE4C4', 'AUG': '#FF6666',
+            'FRN': '#4D79A4', 'SWI': '#FF0000', 'GNV': '#FFD700', 'HAM': '#00FF00',
+            'BRE': '#CC0000', 'OLD': '#1E2E4F', 'BRU': '#FFFF00', 'LUN': '#FFA500',
+            'VER': '#00AA00', 'MAG': '#67C8A0', 'ANH': '#603E95', 'DTT': '#5CB85C',
+            'STT': '#2ECC71', 'WOL': '#1ABC9C', 'RUG': '#27AE60', 'SLZ': '#F39C12',
+            'STY': '#9B59B6', 'TIR': '#E74C3C', 'AAC': '#CC0099', 'MNS': '#FFB84D',
+            'OSN': '#FF6B6B', 'EFR': '#F1C40F', 'BRG': '#7FFF00', 'MRK': '#00CED1',
+            'RVN': '#FF69B4', 'BAD': '#FFAA00', 'HEI': '#B22222', 'FRK': '#800080',
+            'NAS': '#FF8C00', 'DAR': '#228B22', 'KLE': '#DC143C', 'WBG': '#3CB371',
+            
+            // Low Countries
+            'HOL': '#FF8C00', 'UTR': '#FF0000', 'GEL': '#FFD700', 'FRI': '#FFFF00',
+            'BRB': '#AA5555', 'FLA': '#F1D35A', 'HAI': '#799BAC', 'LIE': '#7FFFFF',
+            'LUX': '#7BC8F6', 'ZEL': '#FAA23C', 'GRO': '#009900', 'OVE': '#00AA00',
+            'DRE': '#AA00AA', 'TWE': '#FF00FF', 'NED': '#FF8C00', 'BEL': '#FFFF00',
+            
+            // Eastern Europe
+            'MOS': '#2D5016', 'RUS': '#2D5016', 'NOV': '#4CBB6C', 'PSK': '#7F7F00',
+            'TVE': '#832A6A', 'RYA': '#41A83B', 'YAR': '#B8112C', 'NZH': '#B3D569',
+            'PRM': '#A3AC5D', 'VYA': '#D86868', 'BLO': '#7296BC', 'RST': '#968994',
+            'KAZ': '#C4E7A8', 'GOL': '#F2D774', 'GLH': '#F2D774', 'NOG': '#E8DD7A',
+            'CRI': '#C0E9EF', 'AST': '#1FD8A8', 'SIB': '#EAFB88', 'PLT': '#9771A7',
+            'KIE': '#F5C483', 'CHR': '#D691A0', 'ZAZ': '#B18246', 'MOL': '#252D32',
+            'WAL': '#606C38', 'SER': '#DC9A44', 'BOS': '#A0D688', 'ALB': '#FF0000',
+            'BUL': '#4A714D', 'BYZ': '#A568B4', 'GRE': '#7979DB', 'CYP': '#B392C4',
+            'KNI': '#383838', 'ACH': '#7BCCC4', 'ATH': '#9D98E7', 'NAX': '#D896C7',
+            'CEP': '#DEA5A5', 'MOE': '#9B455B', 'EPI': '#810034', 'CRE': '#BEC3F3',
+            'RAG': '#00CCCC', 'HRV': '#F24D43', 'SLO': '#00AADD', 'TRA': '#FFE39F',
+            'VOL': '#E16D6D', 'DNZ': '#FEDB0E', 'KRA': '#EA6C20', 'SIL': '#AA8800',
+            'WLK': '#FFBBBB', 'KUJ': '#FF88AA', 'SAN': '#FF8FC9', 'RED': '#D66666',
+            'PDL': '#FFB8B8',
+            
+            // Anatolia & Caucasus
+            'OTT': '#A3C5A3', 'TUR': '#A3C5A3', 'ANA': '#7CB342', 'CND': '#AA5C60',
+            'KAR': '#52D974', 'DUL': '#C79E6D', 'RAM': '#4BC68A', 'TRE': '#9568B4',
+            'GEO': '#FFA500', 'IME': '#B8860B', 'SME': '#C38A68', 'ARM': '#806060',
+            'CIR': '#4AA05F', 'GAZ': '#339966', 'AVR': '#66CC00', 'MLK': '#8F2929',
+            'SHR': '#00B371', 'AKK': '#F0F0F0', 'QAR': '#3C3C3C', 'BPI': '#CC9966',
+            'MSY': '#00CC66', 'KRY': '#66CC33', 'TAB': '#CC6666', 'ARL': '#CC9999',
+            'LRI': '#996666', 'BTL': '#3399CC', 'HDK': '#996633', 'ERZ': '#FFCC99',
+            'AYD': '#B382C8', 'MEN': '#E65F00', 'SAR': '#CE5C36', 'GRM': '#E18D96',
+            'HAM': '#228B22', 'TEK': '#FF6347', 'SRU': '#D2691E',
+            
+            // Middle East
+            'MAM': '#F3DE8A', 'EGY': '#F3DE8A', 'ARB': '#55E055', 'HED': '#329932',
+            'YEM': '#7ACAA7', 'RAS': '#BD8471', 'OMA': '#D14141', 'SHM': '#5E664D',
+            'ANZ': '#89916A', 'FAD': '#7E8A6F', 'NJD': '#70774D', 'HAA': '#8A5252',
+            'MHR': '#BD5B5B', 'ADE': '#CE5C36', 'DAW': '#663300', 'MDA': '#003300',
+            'MFL': '#006600', 'NJR': '#009900', 'ASI': '#00CC00', 'JBR': '#339933',
+            'BHR': '#CC6666', 'QAT': '#996666', 'ABU': '#CC9999', 'ORM': '#CE5C36',
+            'YAS': '#D2691E', 'SHJ': '#CD853F', 'KUW': '#F4A460', 'BSR': '#8B4513',
+            
+            // Persia & Central Asia
+            'PER': '#884693', 'KHO': '#8FCF66', 'AFG': '#7EAAD2', 'TIM': '#CE5C36',
+            'TRS': '#F27474', 'SIS': '#94A973', 'KRM': '#7CC57C', 'YZD': '#CD5C5C',
+            'ISF': '#0082CA', 'FRS': '#71A6D2', 'LUR': '#8E79A5', 'TBR': '#FFD700',
+            'BUK': '#01855A', 'KHI': '#4CB893', 'KOK': '#4AC58F', 'KZH': '#64B0C9',
+            'CHG': '#E8C36E', 'MGH': '#CDE255', 'OIR': '#F2C75C', 'MNG': '#C09E26',
+            'KHA': '#C09E26', 'ZUN': '#F08080', 'KLK': '#C88745', 'BAL': '#CD853F',
+            'MAK': '#F4A460', 'KAL': '#DEB887', 'KDH': '#D2691E', 'GHO': '#8B4513',
+            'BAM': '#A0522D', 'KAB': '#8B4513', 'KAS': '#FFE4B5', 'LAD': '#FFDEAD',
+            
+            // Africa
+            'MOR': '#C1665A', 'FEZ': '#89B959', 'TUN': '#FFC956', 'TLC': '#9e7c70',
+            'ALG': '#51C451', 'TRP': '#4EC3C8', 'FZN': '#CE5C36', 'CYR': '#77BFC7',
+            'ETH': '#967117', 'NUB': '#CD853F', 'MAK': '#8B4513', 'ADA': '#8DDADD',
+            'AJU': '#6FAAC4', 'MDI': '#86CE7B', 'MLI': '#CEC028', 'SON': '#EDE024',
+            'TMB': '#F2F230', 'JNN': '#D0BC00', 'MSI': '#C76E4B', 'YAT': '#DB6E59',
+            'WAG': '#BD5050', 'HAU': '#B2D8B2', 'KBO': '#2C7A2C', 'YAO': '#CAC79B',
+            'DAR': '#FFF44F', 'FNJ': '#8E44B3', 'KON': '#AD5F5F', 'NDO': '#845252',
+            'LOA': '#C1665A', 'KUB': '#E57373', 'LUB': '#CD6666', 'LND': '#C15C5C',
+            'KZB': '#CC6666', 'YAK': '#996666', 'KSJ': '#CC9999', 'MUT': '#CDA277',
+            'RZW': '#BFA670', 'BTU': '#C5A568', 'ZIM': '#D4AF6F', 'KLW': '#E0CB92',
+            'MOM': '#D4C896', 'PTT': '#DDD89F', 'SFA': '#CEC5A8', 'ANN': '#B2A896',
+            'SKL': '#9E9479', 'MFY': '#A59D84', 'MDG': '#B7AF9A', 'BTL': '#C9C1A9',
+            'ASH': '#545454', 'DAH': '#4B7D4B', 'OYO': '#967053', 'BEN': '#AB6F53',
+            'NUP': '#C96A4B', 'KAN': '#A5D2A5', 'KTS': '#81C784', 'ZAZ': '#66BB6A',
+            'AIR': '#CE5C36', 'KNM': '#00AA00', 'BAG': '#00CC00', 'BON': '#228B22',
+            'DAG': '#32CD32', 'FUL': '#3CB371', 'FUT': '#2E8B57', 'KBU': '#006400',
+            'SOS': '#556B2F', 'DEN': '#6B8E23', 'AKW': '#808000',
+            
+            // India  
+            'MUG': '#B38F70', 'DLH': '#FFF468', 'SRH': '#FFEB84', 'PUN': '#E8C36E',
+            'MUL': '#F2D06B', 'KSH': '#A6C8A6', 'SND': '#D7AE7E', 'JAN': '#CCA14A',
+            'MEW': '#D45E5E', 'MAW': '#AC8C6E', 'DHU': '#E16D6D', 'GUJ': '#CC5555',
+            'MAL': '#AC8C6E', 'JDU': '#CE8F36', 'BNG': '#00A693', 'ORI': '#83C26B',
+            'GDW': '#A5D5A5', 'GAR': '#66CC66', 'BST': '#99CC99', 'BAH': '#50AA50',
+            'BIJ': '#996633', 'GOC': '#CC9966', 'BRR': '#FFCC66', 'AHM': '#FF9933',
+            'VIJ': '#F97306', 'MYS': '#CB6D6D', 'MAD': '#D991A0', 'TNJ': '#E3C3C9',
+            'CEY': '#FFF45F', 'KND': '#EA6C6C', 'KOT': '#F3DE00', 'JFN': '#F0C000',
+            'MDV': '#8FD8D8', 'NPL': '#FF6666', 'GRK': '#CC6666', 'SRM': '#996666',
+            'KMT': '#CC9999', 'GWL': '#FEE761', 'KGR': '#E8C36E', 'KTM': '#FF6666',
+            'BTN': '#8B6F8B', 'ASS': '#67BD67', 'MNP': '#A8E4A8', 'TRP': '#FFE680',
+            'KOC': '#E8C36E', 'SDY': '#BDE255', 'BGL': '#FFCC99', 'KLP': '#CE8F36',
+            'BND': '#FFD900', 'ODH': '#F38356', 'VER': '#CB6D68', 'KOZ': '#A5A551',
+            'KOL': '#AA8800', 'MAH': '#CD9C1D', 'NAG': '#DAB965', 'PAN': '#FFCC00',
+            'GAJ': '#CF8F60', 'JHA': '#99CC66', 'GRJ': '#66CC99', 'RAJ': '#CC9966',
+            'IDR': '#996633', 'NAV': '#663399', 'JUN': '#9966CC', 'POR': '#CC99FF',
+            'PAL': '#9966FF', 'JAI': '#E16D6D', 'BKN': '#CC5555', 'JSL': '#AA4444',
+            'MER': '#D45E5E', 'HAD': '#DB6565', 'RJP': '#996600', 'BAG': '#CC9900',
+            'PTA': '#FFCC00', 'SIK': '#FF6600', 'LAH': '#FF9900', 'FRK': '#996666',
+            'KAC': '#CC9999', 'BAC': '#FFCCCC', 'VEN': '#CB6D68', 'TRV': '#E57575',
+            'COC': '#FF8888', 'MAB': '#99CC00', 'KER': '#66CC00',
+            
+            // Southeast Asia
+            'AYU': '#B5DB9B', 'SUK': '#689568', 'LNA': '#9DFF9D', 'LXA': '#EE5145',
+            'LUA': '#FF5050', 'VIE': '#FDE74C', 'CHA': '#7FCD9A', 'KHM': '#9FE27F',
+            'DAI': '#FDE74C', 'TON': '#FFE74C', 'ANN': '#FDD74C', 'CHP': '#E37066',
+            'PAT': '#6FE3E3', 'KED': '#00CED1', 'JOH': '#5F9EA0', 'PRK': '#4682B4',
+            'PLB': '#DB8D5F', 'PSI': '#E3A857', 'SAK': '#86D9CE', 'JAM': '#88EECC',
+            'BEI': '#D6C2AD', 'SUL': '#FFC7C7', 'MGD': '#AD9263', 'LNO': '#D6A865',
+            'BTN': '#E2AA62', 'CSU': '#EBCF8A', 'PAN': '#E4C36D', 'TDO': '#F2CF66',
+            'MYN': '#EDE056', 'MAJ': '#CB6D51', 'SUN': '#FFDAA3', 'BLM': '#DB6B4B',
+            'BNJ': '#E08E79', 'KUT': '#E8A798', 'BON': '#F0CCC4', 'LUW': '#D9C2AD',
+            'BTR': '#A8937D', 'TER': '#AE764A', 'TID': '#A66F4C', 'MAK': '#FFA847',
+            'ACE': '#996633', 'DLI': '#CC9966', 'PGR': '#FFCC99', 'IDR': '#996600',
+            'BAR': '#CC9900', 'PSM': '#FFCC00', 'MLK': '#F97306', 'NSP': '#FF6600',
+            'SGP': '#FF3300', 'LIG': '#99CC99', 'PKT': '#66CC66', 'ARK': '#70A070',
+            'PRM': '#50C878', 'PEG': '#AEDEA7', 'TAU': '#8EBC8B', 'AVA': '#99CC66',
+            'HSE': '#66CC99', 'MMT': '#33CC99', 'MKA': '#00CC99', 'MYA': '#00CC66',
+            'KAL': '#00CC33', 'MMA': '#00CC00', 'MMI': '#33CC00', 'SST': '#66CC00',
+            
+            // China & East Asia
+            'MIN': '#FCDD5C', 'QNG': '#F7E7A2', 'CSH': '#99BB66', 'CXI': '#AA8866',
+            'YUA': '#D6C3A0', 'MCH': '#FFF5B5', 'JRC': '#FFF8DC', 'MHX': '#FCDD5C',
+            'MJZ': '#FCDD5C', 'KOR': '#C1E1E1', 'GRT': '#99CCCC', 'YUE': '#FFE680',
+            'WUU': '#F0E68C', 'CHC': '#E8E26E', 'QIC': '#E0DC60', 'YAN': '#FFE74C',
+            'JIN': '#FFD700', 'LNG': '#FFE74C', 'SHU': '#F2CF66', 'NNG': '#E8C36E',
+            'TNG': '#E8C36E', 'CDL': '#CA7853', 'CHD': '#FFE74C', 'CHS': '#F2CF66',
+            'HNA': '#F0DC82', 'SNG': '#F0E68C', 'HNG': '#EEE8AA', 'CMI': '#E8E26E',
+            'CGD': '#FAFAD2',
+            
+            // Japan (Daimyo colors)
+            'JAP': '#8E1419', 'ASK': '#A24747', 'ODA': '#8B7459', 'DTE': '#724464',
+            'IMG': '#DEA855', 'MAE': '#C1BBAD', 'TKD': '#842424', 'UES': '#676D71',
+            'YMN': '#C9C299', 'HSK': '#8888CC', 'HTK': '#BDB87C', 'OTM': '#40826D',
+            'OUC': '#847CAC', 'SHN': '#5CC4BB', 'AMA': '#695548', 'RYU': '#C47CAC',
+            'AIN': '#D4E5E5', 'TKG': '#E85A5A', 'HJO': '#FFFAAD', 'CHO': '#66CDAA',
+            'MRI': '#51A595', 'ASA': '#FFC0CB', 'AZI': '#9ACD32', 'STM': '#EAE151',
+            'ITO': '#C57C7C', 'OGS': '#7C9473', 'KKC': '#BF8773', 'SBA': '#C0C0C0',
+            'UTN': '#B0E0E6', 'NNB': '#9370DB', 'AND': '#FF69B4', 'SAT': '#FFD700',
+            'ASN': '#F0E68C', 'KBY': '#DAA520', 'TKK': '#BDB76B', 'CHB': '#8FBC8F',
+            'KNO': '#9ACD32', 'KKU': '#6B8E23', 'YMZ': '#556B2F', 'ISH': '#8B4513',
+            'TKM': '#D2691E', 'TKC': '#BC8F8F', 'HNM': '#F5DEB3', 'SHO': '#FFE4B5',
+            'AKM': '#FFDEAD', 'KTB': '#FFE4E1', 'ISE': '#FFF0F5', 'OTN': '#F0FFF0',
+            'MYS': '#F0FFFF', 'AKC': '#F5FFFA', 'HCH': '#FFFAFA', 'KMK': '#FF6347',
+            'KUR': '#FF7F50', 'NBN': '#FFA500', 'KAT': '#FFD700', 'TODO': '#FFFF00',
+            'IKD': '#ADFF2F', 'KYG': '#7FFF00', 'ASO': '#00FF00', 'SGK': '#00FA9A',
+            'OMR': '#00CED1', 'ARI': '#4682B4', 'GOT': '#4169E1',
+            
+            // Americas
+            'AZT': '#86351E', 'TLX': '#ED7451', 'ZAP': '#C28542', 'MIX': '#C09372',
+            'TOP': '#BFA575', 'TAR': '#CA8E68', 'OTO': '#B8A192', 'GME': '#CEC5A8',
+            'HUE': '#9F9F71', 'CCM': '#A0A070', 'MAY': '#3D5C3D', 'KIC': '#426242',
+            'ITZ': '#586B58', 'XIU': '#637863', 'COC': '#738573', 'INC': '#10893E',
+            'CUS': '#93CB56', 'CCQ': '#E57066', 'CJA': '#86C867', 'HJA': '#EEE05E',
+            'PCJ': '#71DC71', 'CRA': '#AFE1AF', 'MCA': '#8EBC8B', 'QUI': '#ADFF2F',
+            'CAN': '#CE5C36', 'ARW': '#D2691E', 'TPA': '#F4A460', 'TPQ': '#F5DEB3',
+            'GUA': '#7CC481', 'PTG': '#FFE4B5', 'CRT': '#D8BFD8', 'MPU': '#A85252',
+            'TEH': '#996666', 'HRP': '#CC9999', 'DIG': '#FFCCCC',
+            
+            // North American Natives
+            'HUR': '#DDA520', 'IRO': '#B76734', 'CHE': '#C19A6B', 'POW': '#E7BC8A',
+            'SUS': '#F5D290', 'SHA': '#DBAF88', 'MIA': '#B85840', 'ILL': '#DDA070',
+            'CAD': '#63686E', 'CRK': '#D1734A', 'CHI': '#E89968', 'CHO': '#F8AD7C',
+            'NAT': '#FFDAA3', 'COM': '#F2CF66', 'APA': '#FCF75E', 'NAH': '#FFF468',
+            'PUE': '#E8E38E', 'ZUN': '#C8C868', 'SHO': '#88CC88', 'ARP': '#DDFFDD',
+            'BLA': '#AFE5AD', 'CRW': '#8ED8B0', 'PAW': '#5FAF87', 'WIC': '#518551',
+            'KIO': '#798F5C', 'OSA': '#899768', 'FOX': '#A0AB76', 'SAU': '#CFCFAF',
+            'MEN': '#3D5C3D', 'WIN': '#526E52', 'OJI': '#708E70', 'OTT': '#6FA5A2',
+            'CRP': '#A1CDA1', 'ASI': '#94FF94', 'CHY': '#8EFF8E', 'SIO': '#88FF88',
+            'DAK': '#66CC66', 'LAK': '#669966', 'MAN': '#6B9299', 'HID': '#8FB5C1',
+            'ARI': '#A3C5CF', 'CHN': '#FF9999', 'SAL': '#99DDBB', 'HAI': '#C6C3B5',
+            'TLI': '#DDD7C8', 'ALE': '#E0E0E0', 'INI': '#EEEEEE', 'MIK': '#9A906E',
+            'ABE': '#B2A57F', 'PEQ': '#E1CA96', 'LEN': '#9D8D71', 'SEM': '#AA5555',
+            'MOH': '#CC7777', 'ONE': '#EE9999', 'CAY': '#FFB5B5', 'ONO': '#FFCCCC',
+            'SEN': '#FFE0E0', 'TUS': '#FFF0F0',
+            
+            // Colonial & Revolutionary tags
+            'USA': '#1776D2', 'MEX': '#006341', 'QUE': '#0047AB', 'CAN': '#FF0000',
+            'TEX': '#002868', 'CAL': '#B22234', 'LOU': '#002395', 'FLO': '#FF8800',
+            'VRG': '#CC0000', 'PRG': '#0038A8', 'CHL': '#D52B1E', 'LAP': '#87CEEB',
+            'COL': '#FCD116', 'VNZ': '#CF142B', 'PEU': '#D91E18', 'BRZ': '#009C3B',
+            'HAT': '#00209F', 'CUB': '#002A8F', 'AUS': '#00008B', 'NZL': '#012169',
+            
+            // Additional tags
+            'REB': '#404040', 'PIR': '#000000', 'NAT': '#808080'
         };
         
         // Fallback color generator
@@ -979,7 +1382,7 @@
             
             Promise.all([
                 fetch('provinces_data.json').then(r => r.json()),
-                fetch('provinces.bmp').then(r => r.blob())
+                fetch('provinces.png').then(r => r.blob())
             ]).then(([jsonData, bmpBlob]) => {
                 processJSONData(jsonData);
                 processBMPBlob(bmpBlob);
