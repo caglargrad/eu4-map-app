@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU4 Province Map Generator - Enhanced Edit Mode</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+        
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        #map-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: #0a0a0a;
+        }
+        
+        canvas {
+            position: absolute;
+            cursor: grab;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        canvas.grabbing {
+            cursor: grabbing;
+        }
+        
+        canvas.selecting {
+            cursor: crosshair;
+        }
+        
+        #sidebar {
+            width: 400px;
+            background-color: #2a2a2a;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+        }
+        
+        h1 {
+            font-size: 1.5em;
+            color: #4CAF50;
+            margin-top: 0;
+        }
+        
+        h2 {
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #4CAF50;
+            margin-top: 0;
+        }
+        
+        .section {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #444;
+        }
+        
+        .info-label {
+            color: #999;
+            font-weight: bold;
+        }
+        
+        .info-value {
+            color: #fff;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            width: calc(100% - 10px);
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button.secondary {
+            background-color: #2196F3;
+        }
+        
+        button.secondary:hover {
+            background-color: #1976D2;
+        }
+        
+        button.danger {
+            background-color: #f44336;
+        }
+        
+        button.danger:hover {
+            background-color: #d32f2f;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-input-label {
+            display: block;
+            background-color: #104e8c;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        
+        .file-input-label:hover {
+            background-color: #1e5ba8;
+        }
+        
+        #status {
+            background-color: #444;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .instructions {
+            background-color: #444;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .instructions h3 {
+            color: #4CAF50;
+            margin-top: 0;
+        }
+        
+        .instructions code {
+            background-color: #555;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        #province-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #444;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .province-item {
+            padding: 5px;
+            cursor: pointer;
+            border-bottom: 1px solid #555;
+        }
+        
+        .province-item:hover {
+            background-color: #555;
+        }
+        
+        .province-item.selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(42, 42, 42, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        #controls button {
+            width: auto;
+            margin: 2px;
+            padding: 8px 16px;
+        }
+        
+        #zoom-display {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(42, 42, 42, 0.9);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        #tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+        }
+        
+        #performance-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(42, 42, 42, 0.9);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .checkbox-label input {
+            margin-right: 10px;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #selection-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(42, 42, 42, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            max-width: 300px;
+        }
+        
+        #selection-info.active {
+            display: block;
+        }
+        
+        .quick-assign {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .quick-assign input {
+            flex: 1;
+            padding: 5px;
+            margin-right: 10px;
+            background-color: #555;
+            border: 1px solid #666;
+            color: white;
+            border-radius: 4px;
+        }
+        
+        .quick-assign button {
+            width: auto;
+            padding: 5px 15px;
+            margin: 0;
+        }
+        
+        .nation-stats {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .stat-label {
+            color: #aaa;
+        }
+        
+        .stat-value {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .dev-breakdown {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+        
+        .dev-item {
+            text-align: center;
+        }
+        
+        .dev-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .dev-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .dev-label {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .error-display {
+            background-color: #f44336;
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .data-info {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #ccc;
+        }
+        
+        .edit-input {
+            background: #444;
+            border: 1px solid #666;
+            color: white;
+            padding: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .edit-section {
+            margin-top: 10px;
+        }
+        
+        .country-manager {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .country-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .country-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .country-item:hover {
+            background-color: #444;
+        }
+        
+        .color-picker {
+            width: 50px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+        
+        .modal-content {
+            background-color: #333;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 8px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: white;
+        }
+        
+        .capital-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 2px 6px;
+            margin-left: 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 12px;
+            transition: background-color 0.3s;
+            width: auto;
+        }
+        
+        .capital-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="map-container">
+            <canvas id="map-canvas"></canvas>
+            <canvas id="border-canvas"></canvas>
+            <canvas id="text-canvas"></canvas>
+            <canvas id="selection-canvas"></canvas>
+            <canvas id="capitals-canvas"></canvas>
+            <div id="controls">
+                <button onclick="resetView()">Reset View</button>
+                <button onclick="zoomIn()">Zoom In</button>
+                <button onclick="zoomOut()">Zoom Out</button>
+                <button onclick="createTestMap()" class="secondary">Create Test Map</button>
+            </div>
+            <div id="zoom-display">Zoom: 100%</div>
+            <div id="tooltip"></div>
+            <div id="performance-info" style="display: none;">
+                <div>FPS: <span id="fps">0</span></div>
+                <div>Provinces: <span id="province-count">0</span></div>
+                <div>Countries: <span id="country-count">0</span></div>
+                <div>Render Time: <span id="render-time">0</span>ms</div>
+                <div>Regions: <span id="region-count">0</span></div>
+            </div>
+            <div id="selection-info">
+                <h3>Selection Mode</h3>
+                <p><span id="selected-count">0</span> provinces selected</p>
+                <div class="quick-assign">
+                    <input type="text" id="quick-assign-tag" placeholder="Country tag (e.g. FRA)" maxlength="3">
+                    <button onclick="quickAssignSelected()">Assign</button>
+                </div>
+                <button class="danger" onclick="clearSelection()">Clear Selection</button>
+            </div>
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+        
+        <div id="sidebar">
+            <h1>EU4 Province Map - Enhanced Editor</h1>
+            
+            <div class="instructions">
+                <h3>Enhanced Edit Mode Features:</h3>
+                <ul>
+                    <li><strong>Click</strong> a province to edit it</li>
+                    <li><strong>Ctrl+Click</strong> to select multiple provinces</li>
+                    <li><strong>Shift+Click</strong> to select all provinces of a country</li>
+                    <li><strong>ESC</strong> to clear selection</li>
+                    <li>Edit country names and colors</li>
+                    <li>Add new countries or remove existing ones</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h3>Load Map Files</h3>
+                <label class="file-input-label" for="bmp-input">
+                    Load provinces.bmp
+                </label>
+                <input type="file" id="bmp-input" accept=".bmp" onchange="loadBMP(event)">
+                
+                <label class="file-input-label" for="json-input">
+                    Load provinces_data.json
+                </label>
+                <input type="file" id="json-input" accept=".json" onchange="loadJSON(event)">
+                
+                <button onclick="tryAutoLoad()" class="secondary">Try Auto-Load Again</button>
+                
+                <div class="checkbox-label">
+                    <input type="checkbox" id="show-borders" checked onchange="toggleBorders()">
+                    <label for="show-borders">Show Province Borders</label>
+                </div>
+                
+                <div class="checkbox-label">
+                    <input type="checkbox" id="show-hre" checked onchange="toggleHRE()">
+                    <label for="show-hre">Show HRE Overlay</label>
+                </div>
+                
+                <div class="checkbox-label">
+                    <input type="checkbox" id="show-hre-border" checked onchange="toggleHREBorder()">
+                    <label for="show-hre-border">Show HRE Border</label>
+                </div>
+                
+                <div class="checkbox-label">
+                    <input type="checkbox" id="show-country-names" checked onchange="toggleCountryNames()">
+                    <label for="show-country-names">Show Country Names</label>
+                </div>
+                
+                <div class="checkbox-label">
+                    <input type="checkbox" id="show-terrain" onchange="toggleTerrain()">
+                    <label for="show-terrain">Show Terrain</label>
+                </div>
+                
+                <div class="checkbox-label">
+                    <input type="checkbox" id="show-trade" onchange="toggleTradeNodes()">
+                    <label for="show-trade">Show Trade Nodes</label>
+                </div>
+                
+                <div class="checkbox-label">
+                    <input type="checkbox" id="edit-mode" onchange="toggleEditMode()">
+                    <label for="edit-mode">Edit Mode</label>
+                </div>
+                
+                <div class="checkbox-label">
+                    <input type="checkbox" id="show-performance" onchange="togglePerformance()">
+                    <label for="show-performance">Show Performance Stats</label>
+                </div>
+
+                <div id="status">Ready to load files...</div>
+                
+                <div id="data-info" class="data-info" style="display: none;">
+                    <strong>Data Source Info:</strong><br>
+                    <span id="data-source">No data loaded</span>
+                </div>
+            </div>
+            
+            <!-- Country Manager Section (shown in edit mode) -->
+            <div class="section" id="country-manager-section" style="display: none;">
+                <h2>Country Manager</h2>
+                <div class="country-manager">
+                    <button onclick="showAddCountryModal()" class="secondary">Add New Country</button>
+                    <button onclick="exportChanges()" class="secondary">Export All Changes</button>
+                    
+                    <div class="country-list" id="country-list">
+                        <!-- Countries will be listed here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section" id="nation-info-section" style="display: none;">
+                <h2>Nation Information</h2>
+                <div id="nation-details">
+                    <p style="color: #999;">Select a nation to see information</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Province Information</h2>
+                <div id="province-details">
+                    <p style="color: #999;">Hover over provinces to see information</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Loaded Provinces</h3>
+                <div id="province-count-display">No provinces loaded</div>
+                <div id="province-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Country Modal -->
+    <div id="add-country-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddCountryModal()">&times;</span>
+            <h3>Add New Country</h3>
+            <div class="info-row">
+                <span class="info-label">Tag (3 letters):</span>
+                <input type="text" id="new-country-tag" maxlength="3" class="edit-input" placeholder="e.g. ABC">
+            </div>
+            <div class="info-row">
+                <span class="info-label">Name:</span>
+                <input type="text" id="new-country-name" class="edit-input" placeholder="e.g. New Country">
+            </div>
+            <div class="info-row">
+                <span class="info-label">Color:</span>
+                <input type="color" id="new-country-color" class="color-picker" value="#FF0000">
+            </div>
+            <button onclick="addNewCountry()">Create Country</button>
+            <button onclick="closeAddCountryModal()" class="danger">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let provinceMap = new Map();
+        let provinceData = new Map();
+        let provinceDefinitions = new Map();
+        let canvas, ctx, borderCanvas, borderCtx, textCanvas, textCtx, selectionCanvas, selectionCtx, capitalsCanvas, capitalsCtx;
+        let mapImageData;
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+        let hoveredProvince = null;
+        let showBorders = true;
+        let showHRE = true;
+        let showHREBorder = true;
+        let showCountryNames = true;
+        let showTerrain = false;
+        let showTradeNodes = false;
+        let editMode = false;
+        let cachedColoredMap = null;
+        let cachedBorderMap = null;
+        let cachedHREMap = null;
+        let cachedHREBorderMap = null;
+        let countryData = new Map();
+        let countryRegions = new Map();
+        let needsRedraw = true;
+        let needsTextRedraw = true;
+        
+        // Data source tracking
+        let dataMetadata = null;
+        let knownWastelands = new Set();
+        
+        // Selection mode variables
+        let selectedProvinces = new Set();
+        let isCtrlPressed = false;
+        let isShiftPressed = false;
+        
+        // Performance tracking
+        let lastTime = 0;
+        let fps = 0;
+        let frameCount = 0;
+        let renderStartTime = 0;
+        let lastRenderTime = 0;
+        
+        // Animation loop render queue
+        let renderQueue = {
+            map: false,
+            text: false,
+            capitals: false,
+            selection: false
+        };
+        
+        // Country names - now modifiable
+        let countryNames = {
+            'FRA': 'France', 'ENG': 'England', 'CAS': 'Castile', 'POR': 'Portugal',
+            'AUS': 'Austria', 'OTT': 'Ottomans', 'MOS': 'Muscovy', 'POL': 'Poland',
+            'SWE': 'Sweden', 'DAN': 'Denmark', 'BRA': 'Brandenburg', 'VEN': 'Venice',
+            'SAV': 'Savoy', 'PAP': 'Papal States', 'HOL': 'Holland', 'MAM': 'Mamluks',
+            'TIM': 'Timurids', 'MOR': 'Morocco', 'ETH': 'Ethiopia', 'JAP': 'Japan',
+            'MIN': 'Ming', 'AYU': 'Ayutthaya', 'VIJ': 'Vijayanagar', 'BAH': 'Bahmanis',
+            'HUN': 'Hungary', 'BOH': 'Bohemia', 'NAP': 'Naples', 'ARA': 'Aragon',
+            'BUR': 'Burgundy', 'LIT': 'Lithuania', 'TEU': 'Teutonic Order', 'NOV': 'Novgorod',
+            'GEN': 'Genoa', 'MIL': 'Milan', 'BAV': 'Bavaria', 'SPA': 'Spain',
+            'GBR': 'Great Britain', 'RUS': 'Russia', 'PER': 'Persia', 'MUG': 'Mughals',
+            'QNG': 'Qing', 'PRU': 'Prussia', 'NED': 'Netherlands', 'ITA': 'Italy',
+            'GER': 'Germany', 'REB': 'Rebels', 'PIR': 'Pirates', 'NAT': 'Natives'
+        };
+        
+        // EU4 Colors - now modifiable
+        let eu4Colors = {
+            'FRA': '#0055A4', 'ENG': '#AB4444', 'CAS': '#F9D90F', 'POR': '#008C48',
+            'AUS': '#FFFFFF', 'OTT': '#A3C5A3', 'MOS': '#2D5016', 'POL': '#C00026',
+            'SWE': '#0E5490', 'DAN': '#C91E2B', 'BRA': '#B4B4B4', 'VEN': '#6AAADD',
+            'SAV': '#FEFEFE', 'PAP': '#FAF1CA', 'HOL': '#FF8C00', 'MAM': '#F3DE8A',
+            'TIM': '#CE5C36', 'MOR': '#C1665A', 'ETH': '#967117', 'JAP': '#8E1419',
+            'MIN': '#FCDD5C', 'AYU': '#B5DB9B', 'VIJ': '#F97306', 'BAH': '#50AA50',
+            'HUN': '#cc9a70', 'BOH': '#A57C51', 'NAP': '#F4C2C2', 'ARA': '#D5001F',
+            'BUR': '#A44A20', 'LIT': '#750137', 'TEU': '#787878', 'NOV': '#4CBB6C',
+            'GEN': '#FDC04C', 'MIL': '#00AA4D', 'BAV': '#007FBF', 'REB': '#404040'
+        };
+        
+        // Fallback color generator
+        const fallbackColors = new Map();
+        
+        // Window onload
+        window.onload = function() {
+            try {
+                setupCanvases();
+                setupEventListeners();
+                drawPlaceholder();
+                tryAutoLoad();
+                requestAnimationFrame(animate);
+            } catch (error) {
+                logError('Failed to initialize application', error);
+            }
+        };
+        
+        function setupCanvases() {
+            try {
+                canvas = document.getElementById('map-canvas');
+                ctx = canvas.getContext('2d', { alpha: false, willReadFrequently: true });
+                borderCanvas = document.getElementById('border-canvas');
+                borderCtx = borderCanvas.getContext('2d', { alpha: true });
+                textCanvas = document.getElementById('text-canvas');
+                textCtx = textCanvas.getContext('2d', { alpha: true });
+                selectionCanvas = document.getElementById('selection-canvas');
+                selectionCtx = selectionCanvas.getContext('2d', { alpha: true });
+                capitalsCanvas = document.getElementById('capitals-canvas');
+                capitalsCtx = capitalsCanvas.getContext('2d', { alpha: true });
+
+                const width = window.innerWidth - 400;
+                const height = window.innerHeight;
+                
+                canvas.width = width;
+                canvas.height = height;
+                borderCanvas.width = width;
+                borderCanvas.height = height;
+                textCanvas.width = width;
+                textCanvas.height = height;
+                selectionCanvas.width = width;
+                selectionCanvas.height = height;
+                capitalsCanvas.width = width;
+                capitalsCanvas.height = height;
+
+                // Set z-index for proper layering
+                canvas.style.zIndex = '0';
+                borderCanvas.style.zIndex = '1';
+                textCanvas.style.zIndex = '2';
+                selectionCanvas.style.zIndex = '3';
+                capitalsCanvas.style.zIndex = '4';
+                
+                // Make overlay canvases non-interactive
+                [borderCanvas, textCanvas, selectionCanvas, capitalsCanvas].forEach(c => {
+                    c.style.pointerEvents = 'none';
+                    c.style.position = 'absolute';
+                });
+            } catch (error) {
+                logError('Error setting up canvases', error);
+                throw error;
+            }
+        }
+        
+        function setupEventListeners() {
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', endDrag);
+            canvas.addEventListener('mouseleave', endDrag);
+            canvas.addEventListener('wheel', handleZoom);
+            canvas.addEventListener('click', handleClick);
+            
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('keyup', handleKeyUp);
+            
+            window.addEventListener('resize', function() {
+                const width = window.innerWidth - 400;
+                const height = window.innerHeight;
+                
+                [canvas, borderCanvas, textCanvas, selectionCanvas, capitalsCanvas].forEach(c => {
+                    c.width = width;
+                    c.height = height;
+                });
+                
+                needsRedraw = true;
+                needsTextRedraw = true;
+            });
+        }
+        
+        // Create a test map when no data files are available
+        function createTestMap() {
+            // Create a small test map
+            const width = 200;
+            const height = 150;
+            
+            // Create test province map and data
+            provinceMap.clear();
+            provinceData.clear();
+            
+            // Create test data with capitals - FIXED VERSION
+            const testProvinces = [
+                { id: 1, color: [255, 0, 0], owner: 'FRA', name: 'Paris', base_tax: 10, base_production: 8, base_manpower: 6, is_capital: true },
+                { id: 2, color: [0, 255, 0], owner: 'ENG', name: 'London', base_tax: 12, base_production: 10, base_manpower: 8, is_capital: true },
+                { id: 3, color: [0, 0, 255], owner: 'CAS', name: 'Madrid', base_tax: 8, base_production: 6, base_manpower: 7, is_capital: true },
+                { id: 4, color: [255, 255, 0], owner: 'AUS', name: 'Vienna', base_tax: 9, base_production: 7, base_manpower: 5, is_capital: true },
+                { id: 5, color: [255, 0, 255], owner: 'OTT', name: 'Istanbul', base_tax: 11, base_production: 9, base_manpower: 8, is_capital: true },
+                { id: 6, color: [128, 255, 0], owner: 'FRA', name: 'Lyon', base_tax: 6, base_production: 5, base_manpower: 4, is_capital: false },
+                { id: 7, color: [0, 128, 255], owner: 'ENG', name: 'York', base_tax: 5, base_production: 4, base_manpower: 3, is_capital: false },
+                { id: 8, color: [255, 128, 0], owner: 'GEN', name: 'Genoa', base_tax: 7, base_production: 8, base_manpower: 3, is_capital: true },
+                { id: 9, color: [128, 0, 255], owner: 'VEN', name: 'Venice', base_tax: 8, base_production: 9, base_manpower: 4, is_capital: true },
+                { id: 10, color: [255, 255, 128], owner: 'FRA', name: 'Bordeaux', base_tax: 4, base_production: 6, base_manpower: 3, is_capital: false }
+            ];
+            
+            console.log('=== CREATING TEST MAP ===');
+            
+            // Add provinces to maps
+            testProvinces.forEach(province => {
+                const colorKey = `${province.color[0]},${province.color[1]},${province.color[2]}`;
+                provinceMap.set(colorKey, province.id);
+                provinceData.set(province.id, {
+                    id: province.id,
+                    name: province.name,
+                    owner: province.owner,
+                    controller: province.owner,
+                    base_tax: province.base_tax,
+                    base_production: province.base_production,
+                    base_manpower: province.base_manpower,
+                    culture: 'test_culture',
+                    religion: 'test_religion',
+                    terrain: province.owner ? 'grasslands' : 'ocean',
+                    is_capital: province.is_capital,
+                    trade_goods: 'grain',
+                    color: {
+                        r: province.color[0],
+                        g: province.color[1], 
+                        b: province.color[2]
+                    }
+                });
+                
+                if (province.is_capital) {
+                    console.log(`Created capital: ${province.owner} - ${province.name} (ID: ${province.id}) Color: ${colorKey}`);
+                }
+            });
+            
+            // Set up test metadata with capitals
+            dataMetadata = {
+                country_capitals: {
+                    'FRA': { province_id: 1, capital_name: 'Paris' },
+                    'ENG': { province_id: 2, capital_name: 'London' },
+                    'CAS': { province_id: 3, capital_name: 'Madrid' },
+                    'AUS': { province_id: 4, capital_name: 'Vienna' },
+                    'OTT': { province_id: 5, capital_name: 'Istanbul' },
+                    'GEN': { province_id: 8, capital_name: 'Genoa' },
+                    'VEN': { province_id: 9, capital_name: 'Venice' }
+                }
+            };
+            
+            // Create test image data
+            mapImageData = new ImageData(width, height);
+            const data = mapImageData.data;
+            
+            // Fill with test colors - IMPROVED LAYOUT
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const i = (y * width + x) * 4;
+                    
+                    // Create regions for each test province
+                    let color = [68, 107, 163]; // Default ocean color
+                    
+                    // France regions (left side)
+                    if (x < width * 0.4) {
+                        if (y < height * 0.3) {
+                            color = testProvinces[0].color; // Paris (capital)
+                        } else if (y < height * 0.6) {
+                            color = testProvinces[5].color; // Lyon
+                        } else {
+                            color = testProvinces[9].color; // Bordeaux
+                        }
+                    }
+                    // England regions (upper middle)
+                    else if (x >= width * 0.4 && x < width * 0.6 && y < height * 0.5) {
+                        if (y < height * 0.25) {
+                            color = testProvinces[1].color; // London (capital)
+                        } else {
+                            color = testProvinces[6].color; // York
+                        }
+                    }
+                    // Castile (upper right)
+                    else if (x >= width * 0.6 && x < width * 0.8 && y < height * 0.4) {
+                        color = testProvinces[2].color; // Madrid (capital)
+                    }
+                    // Austria (middle right)
+                    else if (x >= width * 0.6 && x < width * 0.8 && y >= height * 0.4 && y < height * 0.7) {
+                        color = testProvinces[3].color; // Vienna (capital)
+                    }
+                    // Ottomans (lower right)
+                    else if (x >= width * 0.6 && y >= height * 0.7) {
+                        color = testProvinces[4].color; // Istanbul (capital)
+                    }
+                    // Genoa (small area in middle)
+                    else if (x >= width * 0.45 && x < width * 0.55 && y >= height * 0.5 && y < height * 0.65) {
+                        color = testProvinces[7].color; // Genoa (capital)
+                    }
+                    // Venice (small area in lower middle)
+                    else if (x >= width * 0.4 && x < width * 0.5 && y >= height * 0.65 && y < height * 0.8) {
+                        color = testProvinces[8].color; // Venice (capital)
+                    }
+                    
+                    data[i] = color[0];     // Red
+                    data[i + 1] = color[1]; // Green
+                    data[i + 2] = color[2]; // Blue
+                    data[i + 3] = 255;      // Alpha
+                }
+            }
+            
+            updateStatus('Test map created successfully!');
+            document.getElementById('province-count-display').textContent = `${testProvinces.length} test provinces loaded`;
+            
+            console.log('Test map layout:');
+            console.log('- France (FRA): Paris (capital), Lyon, Bordeaux - scattered across left side');
+            console.log('- England (ENG): London (capital), York - upper middle');
+            console.log('- Genoa (GEN): Small area in middle - should use capital positioning');
+            console.log('- Venice (VEN): Small area in lower middle - should use capital positioning');
+            console.log('- Other countries: Single province capitals');
+            
+            // Process the test map
+            processMap(true);
+        }
+        
+        // Auto-load files
+        function tryAutoLoad() {
+            updateStatus("Attempting to auto-load files...");
+            
+            Promise.all([
+                fetch('provinces_data.json').then(r => r.json()),
+                fetch('provinces.bmp').then(r => r.blob())
+            ]).then(([jsonData, bmpBlob]) => {
+                processJSONData(jsonData);
+                processBMPBlob(bmpBlob);
+            }).catch(() => {
+                updateStatus("Auto-load failed. Use manual load buttons or click 'Create Test Map' to see a demo.");
+            });
+        }
+        
+        // Process JSON data
+        function processJSONData(jsonData) {
+            try {
+                provinceMap.clear();
+                provinceData.clear();
+                provinceDefinitions.clear();
+                fallbackColors.clear();
+                knownWastelands.clear();
+                
+                dataMetadata = jsonData.metadata || {};
+                
+                if (dataMetadata.known_wastelands) {
+                    dataMetadata.known_wastelands.forEach(id => knownWastelands.add(id));
+                }
+                
+                let count = 0;
+                jsonData.provinces.forEach(province => {
+                    provinceData.set(province.id, province);
+                    if (province.name) {
+                        provinceDefinitions.set(province.id, province.name);
+                    }
+                    if (province.color) {
+                        const colorKey = `${province.color.r},${province.color.g},${province.color.b}`;
+                        provinceMap.set(colorKey, province.id);
+                    }
+                    count++;
+                });
+                
+                document.getElementById('province-count-display').textContent = `${count} provinces loaded`;
+                updateProvinceList();
+                updateStatus('Province data loaded successfully!');
+                updateDataSourceInfo();
+                
+            } catch (error) {
+                logError('Error processing JSON data', error);
+            }
+        }
+        
+        function updateDataSourceInfo() {
+            const dataInfoDiv = document.getElementById('data-info');
+            const dataSourceSpan = document.getElementById('data-source');
+            
+            if (dataMetadata) {
+                let info = `Total: ${dataMetadata.total_provinces || 'Unknown'} provinces`;
+                if (dataMetadata.source_path) {
+                    info += `<br>Source: ${dataMetadata.source_path}`;
+                }
+                if (dataMetadata.country_capitals) {
+                    info += `<br>Capitals: ${Object.keys(dataMetadata.country_capitals).length} identified`;
+                }
+                
+                dataSourceSpan.innerHTML = info;
+                dataInfoDiv.style.display = 'block';
+            }
+        }
+        
+        // Process BMP blob
+        function processBMPBlob(blob) {
+            try {
+                const bmpUrl = URL.createObjectURL(blob);
+                const bmpImage = new Image();
+                
+                bmpImage.onload = function() {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = bmpImage.width;
+                    tempCanvas.height = bmpImage.height;
+                    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+                    tempCtx.drawImage(bmpImage, 0, 0);
+                    
+                    mapImageData = tempCtx.getImageData(0, 0, bmpImage.width, bmpImage.height);
+                    updateStatus("Files loaded successfully!");
+                    
+                    if (provinceMap.size > 0) {
+                        processMap(true);
+                    }
+                    
+                    URL.revokeObjectURL(bmpUrl);
+                };
+                
+                bmpImage.onerror = function() {
+                    logError('Failed to load BMP image', null);
+                };
+                
+                bmpImage.src = bmpUrl;
+            } catch (error) {
+                logError('Error creating BMP blob URL', error);
+            }
+        }
+        
+        // Manual load functions
+        function loadBMP(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            showLoading();
+            updateStatus('Loading provinces.bmp...');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+                    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+                    tempCtx.drawImage(img, 0, 0);
+                    
+                    mapImageData = tempCtx.getImageData(0, 0, img.width, img.height);
+                    updateStatus('Map loaded successfully!');
+                    
+                    if (provinceMap.size > 0) {
+                        processMap(true);
+                    }
+                    
+                    hideLoading();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            showLoading();
+            updateStatus('Loading provinces data...');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    processJSONData(data);
+                    
+                    if (mapImageData) {
+                        processMap(true);
+                    }
+                    
+                    hideLoading();
+                } catch (error) {
+                    logError('Error parsing JSON file', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Process the map
+        function processMap(fullReprocess = false) {
+            if (!mapImageData || provinceMap.size === 0) {
+                hideLoading();
+                return;
+            }
+            
+            if (fullReprocess) {
+                showLoading();
+                updateStatus('Processing map...');
+            }
+            
+            const width = mapImageData.width;
+            const height = mapImageData.height;
+            
+            cachedColoredMap = new ImageData(width, height);
+            cachedBorderMap = new ImageData(width, height);
+            cachedHREMap = new ImageData(width, height);
+            cachedHREBorderMap = new ImageData(width, height);
+            
+            const data = mapImageData.data;
+            const coloredData = cachedColoredMap.data;
+            const borderData = cachedBorderMap.data;
+            const hreData = cachedHREMap.data;
+            const hreBorderData = cachedHREBorderMap.data;
+            
+            const hreProvinces = new Set();
+            
+            // Process all pixels
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const colorKey = `${r},${g},${b}`;
+                const provinceId = provinceMap.get(colorKey);
+                
+                let color = null;
+                let isHRE = false;
+                
+                if (provinceId) {
+                    const provinceInfo = provinceData.get(provinceId);
+                    if (provinceInfo) {
+                        if (provinceInfo.hre === true || provinceInfo.in_hre === true) {
+                            isHRE = true;
+                            hreProvinces.add(provinceId);
+                        }
+                    }
+                    color = getProvinceColor(provinceId);
+                }
+                
+                if (color) {
+                    if (color.startsWith('#')) {
+                        const hex = color.substring(1);
+                        coloredData[i] = parseInt(hex.substr(0, 2), 16);
+                        coloredData[i + 1] = parseInt(hex.substr(2, 2), 16);
+                        coloredData[i + 2] = parseInt(hex.substr(4, 2), 16);
+                    } else {
+                        const rgb = hslToRgb(color);
+                        coloredData[i] = rgb[0];
+                        coloredData[i + 1] = rgb[1];
+                        coloredData[i + 2] = rgb[2];
+                    }
+                    coloredData[i + 3] = 255;
+                } else {
+                    coloredData[i] = 68;
+                    coloredData[i + 1] = 107;
+                    coloredData[i + 2] = 163;
+                    coloredData[i + 3] = 255;
+                }
+                
+                if (isHRE && showHRE) {
+                    hreData[i] = 255;
+                    hreData[i + 1] = 215;
+                    hreData[i + 2] = 0;
+                    hreData[i + 3] = 30;
+                } else if (showHRE) {
+                    hreData[i + 3] = 0;
+                }
+            }
+            
+            // Generate borders
+            if (showBorders) {
+                generateBorders(width, height, data, borderData);
+            }
+            
+            if (showHREBorder) {
+                generateHREBorders(width, height, data, hreBorderData, hreProvinces);
+            }
+            
+            updateStatus('Map processed successfully!');
+            
+            // Update country count
+            const countries = new Set();
+            provinceData.forEach(p => {
+                if (p.owner) countries.add(p.owner);
+            });
+            document.getElementById('country-count').textContent = countries.size;
+            document.getElementById('province-count').textContent = provinceData.size;
+            
+            needsRedraw = true;
+            renderQueue.map = true;
+            needsTextRedraw = true;
+            
+            if (fullReprocess) {
+                hideLoading();
+            }
+        }
+        
+        // Get country color
+        function getCountryColor(owner) {
+            if (!owner) return null;
+            
+            if (eu4Colors[owner]) {
+                return eu4Colors[owner];
+            }
+            
+            if (!fallbackColors.has(owner)) {
+                let hash = 0;
+                for (let i = 0; i < owner.length; i++) {
+                    hash = owner.charCodeAt(i) + ((hash << 5) - hash);
+                }
+
+                const hue = (hash * 137) % 360;
+                const saturation = 50 + (hash % 30);
+                const lightness = 40 + (hash % 25);
+
+                fallbackColors.set(owner, `hsl(${hue}, ${saturation}%, ${lightness}%)`);
+            }
+            return fallbackColors.get(owner);
+        }
+        
+        // Get province color
+        function getProvinceColor(provinceId) {
+            const data = provinceData.get(provinceId);
+            if (!data) return null;
+            
+            if (showTerrain) {
+                const terrain = data.terrain;
+                if (terrain) {
+                    const terrainColors = {
+                        'ocean': '#446BA3',
+                        'sea': '#4A71A8', 
+                        'lake': '#6A91C8',
+                        'wasteland': '#94734E',
+                        'impassable': '#6B5D54',
+                        'desert': '#D2B48C',
+                        'coastal_desert': '#E6C49C',
+                        'mountain': '#8B7355',
+                        'highlands': '#A0907A',
+                        'hills': '#9B8A6F',
+                        'grasslands': '#7DB069',
+                        'plains': '#8BC074',
+                        'farmlands': '#96CC82',
+                        'forest': '#4A8B3C',
+                        'woods': '#5A9B4C',
+                        'jungle': '#3A7B2C',
+                        'marsh': '#5A8B6C',
+                        'steppe': '#B5A642',
+                        'savannah': '#C5B652',
+                        'glacier': '#E0E0E0',
+                        'tundra': '#D0D0D0',
+                        'drylands': '#C5A552',
+                        'urban': '#808080'
+                    };
+                    
+                    return terrainColors[terrain.toLowerCase()] || '#7DB069';
+                }
+                return knownWastelands.has(provinceId) ? '#94734E' : '#7DB069';
+            }
+            
+            if (showTradeNodes) {
+                if (data.trade_node) {
+                    let hash = 0;
+                    for (let i = 0; i < data.trade_node.length; i++) {
+                        hash = data.trade_node.charCodeAt(i) + ((hash << 5) - hash);
+                    }
+                    const hue = Math.abs(hash) % 360;
+                    return `hsl(${hue}, 70%, 60%)`;
+                }
+                
+                if (data.terrain === 'ocean' || data.terrain === 'sea' || data.terrain === 'lake') {
+                    return '#446BA3';
+                }
+                if (data.terrain === 'wasteland' || knownWastelands.has(provinceId)) {
+                    return '#94734E';
+                }
+                return '#3A3A3A';
+            }
+            
+            // Default political view
+            if (data.terrain === 'wasteland' || knownWastelands.has(provinceId)) {
+                return '#94734E';
+            }
+            
+            if (data.terrain === 'ocean' || data.terrain === 'sea' || data.terrain === 'lake') {
+                return '#446BA3';
+            }
+            
+            const owner = data.owner;
+            if (owner) {
+                return getCountryColor(owner);
+            }
+            
+            // Unowned land
+            if (data.base_tax || data.base_production || data.is_city) {
+                return '#666666';
+            } else {
+                return '#555555';
+            }
+        }
+        
+        // Convert HSL to RGB
+        function hslToRgb(hslStr) {
+            const match = hslStr.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+            if (!match) return [128, 128, 128];
+            
+            const h = parseInt(match[1]) / 360;
+            const s = parseInt(match[2]) / 100;
+            const l = parseInt(match[3]) / 100;
+            
+            let r, g, b;
+            
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+        
+        // Generate borders
+        function generateBorders(width, height, data, borderData) {
+            for (let y = 0; y < height - 1; y++) {
+                for (let x = 0; x < width - 1; x++) {
+                    const i = (y * width + x) * 4;
+                    
+                    let isBorder = false;
+                    
+                    if (x < width - 1) {
+                        const rightI = i + 4;
+                        if (data[i] !== data[rightI] || data[i + 1] !== data[rightI + 1] || data[i + 2] !== data[rightI + 2]) {
+                            isBorder = true;
+                        }
+                    }
+                    
+                    if (!isBorder && y < height - 1) {
+                        const bottomI = i + width * 4;
+                        if (data[i] !== data[bottomI] || data[i + 1] !== data[bottomI + 1] || data[i + 2] !== data[bottomI + 2]) {
+                            isBorder = true;
+                        }
+                    }
+                    
+                    if (isBorder) {
+                        borderData[i] = 0;
+                        borderData[i + 1] = 0;
+                        borderData[i + 2] = 0;
+                        borderData[i + 3] = 128;
+                    } else {
+                        borderData[i + 3] = 0;
+                    }
+                }
+            }
+        }
+        
+        function generateHREBorders(width, height, data, hreBorderData, hreProvinces) {
+            for (let y = 1; y < height - 1; y++) {
+                for (let x = 1; x < width - 1; x++) {
+                    const i = (y * width + x) * 4;
+                    const colorKey = `${data[i]},${data[i + 1]},${data[i + 2]}`;
+                    const provinceId = provinceMap.get(colorKey);
+                    
+                    if (provinceId && hreProvinces.has(provinceId)) {
+                        const neighbors = [
+                            i - width * 4, i + 4, i + width * 4, i - 4
+                        ];
+                        
+                        let hasNonHRENeighbor = false;
+                        for (const neighborI of neighbors) {
+                            if (neighborI >= 0 && neighborI < data.length) {
+                                const neighborColorKey = `${data[neighborI]},${data[neighborI + 1]},${data[neighborI + 2]}`;
+                                const neighborProvinceId = provinceMap.get(neighborColorKey);
+                                
+                                if (!neighborProvinceId || !hreProvinces.has(neighborProvinceId)) {
+                                    hasNonHRENeighbor = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (hasNonHRENeighbor) {
+                            hreBorderData[i] = 255;
+                            hreBorderData[i + 1] = 0;
+                            hreBorderData[i + 2] = 0;
+                            hreBorderData[i + 3] = 255;
+                        } else {
+                            hreBorderData[i + 3] = 0;
+                        }
+                    } else {
+                        hreBorderData[i + 3] = 0;
+                    }
+                }
+            }
+        }
+        
+        // Animation loop
+        function animate(currentTime) {
+            // Calculate FPS
+            frameCount++;
+            if (currentTime - lastTime >= 1000) {
+                fps = Math.round(frameCount * 1000 / (currentTime - lastTime));
+                frameCount = 0;
+                lastTime = currentTime;
+                if (document.getElementById('fps')) {
+                    document.getElementById('fps').textContent = fps;
+                }
+            }
+            
+            // Render layers that need updates
+            if (needsRedraw && renderQueue.map) {
+                renderMapLayer();
+                renderQueue.map = false;
+            }
+            
+            if (needsTextRedraw && renderQueue.text) {
+                renderTextLayer();
+                renderQueue.text = false;
+            }
+            
+            if (renderQueue.selection) {
+                drawSelectionHighlight();
+                renderQueue.selection = false;
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Render functions
+        function renderMapLayer() {
+            if (!cachedColoredMap) return;
+            
+            renderStartTime = performance.now();
+            
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(translateX, translateY);
+            ctx.scale(scale, scale);
+            
+            // Draw the colored map
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = cachedColoredMap.width;
+            tempCanvas.height = cachedColoredMap.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.putImageData(cachedColoredMap, 0, 0);
+            
+            ctx.drawImage(tempCanvas, 0, 0);
+            ctx.restore();
+            
+            // Draw borders
+            if (showBorders && cachedBorderMap) {
+                borderCtx.save();
+                borderCtx.clearRect(0, 0, borderCanvas.width, borderCanvas.height);
+                borderCtx.translate(translateX, translateY);
+                borderCtx.scale(scale, scale);
+                
+                const borderTempCanvas = document.createElement('canvas');
+                borderTempCanvas.width = cachedBorderMap.width;
+                borderTempCanvas.height = cachedBorderMap.height;
+                const borderTempCtx = borderTempCanvas.getContext('2d');
+                borderTempCtx.putImageData(cachedBorderMap, 0, 0);
+                
+                borderCtx.drawImage(borderTempCanvas, 0, 0);
+                borderCtx.restore();
+            }
+            
+            // Draw HRE overlay
+            if (showHRE && cachedHREMap) {
+                borderCtx.save();
+                borderCtx.translate(translateX, translateY);
+                borderCtx.scale(scale, scale);
+                
+                const hreTempCanvas = document.createElement('canvas');
+                hreTempCanvas.width = cachedHREMap.width;
+                hreTempCanvas.height = cachedHREMap.height;
+                const hreTempCtx = hreTempCanvas.getContext('2d');
+                hreTempCtx.putImageData(cachedHREMap, 0, 0);
+                
+                borderCtx.drawImage(hreTempCanvas, 0, 0);
+                borderCtx.restore();
+            }
+            
+            // Draw HRE borders
+            if (showHREBorder && cachedHREBorderMap) {
+                borderCtx.save();
+                borderCtx.translate(translateX, translateY);
+                borderCtx.scale(scale, scale);
+                
+                const hreBorderTempCanvas = document.createElement('canvas');
+                hreBorderTempCanvas.width = cachedHREBorderMap.width;
+                hreBorderTempCanvas.height = cachedHREBorderMap.height;
+                const hreBorderTempCtx = hreBorderTempCanvas.getContext('2d');
+                hreBorderTempCtx.putImageData(cachedHREBorderMap, 0, 0);
+                
+                borderCtx.drawImage(hreBorderTempCanvas, 0, 0);
+                borderCtx.restore();
+            }
+            
+            needsRedraw = false;
+            lastRenderTime = performance.now() - renderStartTime;
+            if (document.getElementById('render-time')) {
+                document.getElementById('render-time').textContent = lastRenderTime.toFixed(1);
+            }
+        }
+
+        function renderTextLayer() {
+            if (!showCountryNames || !mapImageData) return;
+            
+            textCtx.save();
+            textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+            textCtx.translate(translateX, translateY);
+            textCtx.scale(scale, scale);
+            
+            // Find country centers
+            const countries = new Map();
+            const width = mapImageData.width;
+            const height = mapImageData.height;
+            const data = mapImageData.data;
+            
+            // Collect pixels for each country
+            for (let y = 0; y < height; y += 3) {
+                for (let x = 0; x < width; x += 3) {
+                    const i = (y * width + x) * 4;
+                    const colorKey = `${data[i]},${data[i + 1]},${data[i + 2]}`;
+                    const provinceId = provinceMap.get(colorKey);
+                    
+                    if (provinceId) {
+                        const provinceInfo = provinceData.get(provinceId);
+                        if (provinceInfo && provinceInfo.owner) {
+                            const owner = provinceInfo.owner;
+                            if (!countries.has(owner)) {
+                                countries.set(owner, {
+                                    totalX: 0, totalY: 0, count: 0
+                                });
+                            }
+                            const country = countries.get(owner);
+                            country.totalX += x;
+                            country.totalY += y;
+                            country.count++;
+                        }
+                    }
+                }
+            }
+            
+            // Render country names based on size and zoom
+            countries.forEach((country, tag) => {
+                const name = countryNames[tag] || tag;
+                const centerX = country.totalX / country.count;
+                const centerY = country.totalY / country.count;
+                
+                // Calculate font size based on country size
+                const baseSize = Math.sqrt(country.count) * 0.8;
+                const fontSize = Math.min(24, Math.max(6, baseSize));
+                
+                // Only show small countries when zoomed in enough
+                const minZoomForSize = Math.max(0.3, 1 / Math.sqrt(country.count / 50));
+                if (scale < minZoomForSize) return;
+                
+                // Don't show if country is too small
+                if (country.count < 8) return;
+                
+                textCtx.font = `bold ${fontSize}px Arial`;
+                textCtx.fillStyle = 'white';
+                textCtx.strokeStyle = 'black';
+                textCtx.lineWidth = Math.max(0.5, fontSize / 16);
+                textCtx.textAlign = 'center';
+                textCtx.textBaseline = 'middle';
+                
+                // Add transparency for smaller countries
+                const alpha = Math.min(1, Math.max(0.6, country.count / 200));
+                textCtx.globalAlpha = alpha;
+                
+                textCtx.strokeText(name, centerX, centerY);
+                textCtx.fillText(name, centerX, centerY);
+                
+                textCtx.globalAlpha = 1;
+            });
+            
+            textCtx.restore();
+            needsTextRedraw = false;
+        }
+
+        function renderCapitalsLayer() {
+            // Capitals rendering disabled for performance
+            // Capital info now available via nation information panel
+            needsCapitalsRedraw = false;
+        }
+
+        function drawSelectionHighlight() {
+            if (!cachedColoredMap || !mapImageData || selectedProvinces.size === 0) return;
+            
+            selectionCtx.save();
+            selectionCtx.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+            
+            selectionCtx.translate(translateX, translateY);
+            selectionCtx.scale(scale, scale);
+            
+            const width = mapImageData.width;
+            const height = mapImageData.height;
+            const data = mapImageData.data;
+            
+            // Create highlight overlay
+            const highlightData = new ImageData(width, height);
+            const highlight = highlightData.data;
+            
+            // Fill highlight data
+            for (let i = 0; i < data.length; i += 4) {
+                const colorKey = `${data[i]},${data[i + 1]},${data[i + 2]}`;
+                const provinceId = provinceMap.get(colorKey);
+                
+                if (provinceId && selectedProvinces.has(provinceId)) {
+                    highlight[i] = 255;     // Red
+                    highlight[i + 1] = 255; // Green  
+                    highlight[i + 2] = 0;   // Blue (makes yellow)
+                    highlight[i + 3] = 100; // Alpha
+                } else {
+                    highlight[i + 3] = 0;   // Transparent
+                }
+            }
+            
+            // Draw the highlight
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.putImageData(highlightData, 0, 0);
+            
+            selectionCtx.drawImage(tempCanvas, 0, 0);
+            selectionCtx.restore();
+        }
+        
+        // Show province info
+        function showProvinceInfo(provinceId) {
+            const data = provinceData.get(provinceId);
+            const name = provinceDefinitions.get(provinceId) || `Province ${provinceId}`;
+            const detailsDiv = document.getElementById('province-details');
+            
+            if (!data) {
+                detailsDiv.innerHTML = `
+                    <h3>${name} (ID: ${provinceId})</h3>
+                    <p style="color: #999;">No data available for this province.</p>
+                `;
+                return;
+            }
+            
+            // View mode interface
+            detailsDiv.innerHTML = `
+                <h3>${data.name || name} (ID: ${provinceId})</h3>
+                <div class="info-row">
+                    <span class="info-label">Owner:</span>
+                    <span class="info-value">${data.owner ? `${countryNames[data.owner] || data.owner} (${data.owner})` : 'Unowned'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Controller:</span>
+                    <span class="info-value">${data.controller || data.owner || 'N/A'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Culture:</span>
+                    <span class="info-value">${data.culture || 'N/A'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Religion:</span>
+                    <span class="info-value">${data.religion || 'N/A'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Base Tax:</span>
+                    <span class="info-value">${data.base_tax || 0}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Base Production:</span>
+                    <span class="info-value">${data.base_production || 0}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Base Manpower:</span>
+                    <span class="info-value">${data.base_manpower || 0}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Total Development:</span>
+                    <span class="info-value" style="font-weight: bold; color: #4CAF50;">
+                        ${(data.base_tax || 0) + (data.base_production || 0) + (data.base_manpower || 0)}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Trade Goods:</span>
+                    <span class="info-value">${data.trade_goods || 'N/A'}</span>
+                </div>
+                ${data.terrain ? `
+                <div class="info-row">
+                    <span class="info-label">Terrain:</span>
+                    <span class="info-value">${data.terrain}</span>
+                </div>` : ''}
+                ${data.is_capital ? `
+                <div class="info-row">
+                    <span class="info-label">Is Capital:</span>
+                    <span class="info-value" style="color: #FFD700; font-weight: bold;">Yes ⭐</span>
+                </div>` : ''}
+            `;
+            
+            // Show nation info if this province has an owner
+            if (data.owner) {
+                showNationInfo(data.owner);
+            } else {
+                // Hide nation info if no owner
+                document.getElementById('nation-info-section').style.display = 'none';
+            }
+        }
+        
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.remove('active');
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            console.log(message);
+        }
+
+        function drawPlaceholder() {
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#666';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Load map files or create test map to begin', canvas.width / 2, canvas.height / 2);
+        }
+
+        function logError(message, error) {
+            console.error(message, error);
+            updateStatus(`Error: ${message}`);
+            hideLoading();
+        }
+        
+        // View control functions
+        function resetView() {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            needsRedraw = true;
+            needsTextRedraw = true;
+            renderQueue.map = true;
+            renderQueue.text = true;
+            updateZoomDisplay();
+        }
+
+        function zoomIn() {
+            scale *= 1.2;
+            needsRedraw = true;
+            needsTextRedraw = true;
+            renderQueue.map = true;
+            renderQueue.text = true;
+            updateZoomDisplay();
+        }
+
+        function zoomOut() {
+            scale /= 1.2;
+            needsRedraw = true;
+            needsTextRedraw = true;
+            renderQueue.map = true;
+            renderQueue.text = true;
+            updateZoomDisplay();
+        }
+
+        function updateZoomDisplay() {
+            document.getElementById('zoom-display').textContent = `Zoom: ${Math.round(scale * 100)}%`;
+        }
+
+        // Toggle functions
+        function toggleBorders() {
+            showBorders = document.getElementById('show-borders').checked;
+            needsRedraw = true;
+            renderQueue.map = true;
+        }
+
+        function toggleHRE() {
+            showHRE = document.getElementById('show-hre').checked;
+            needsRedraw = true;
+            renderQueue.map = true;
+        }
+
+        function toggleHREBorder() {
+            showHREBorder = document.getElementById('show-hre-border').checked;
+            needsRedraw = true;
+            renderQueue.map = true;
+        }
+
+        function toggleCountryNames() {
+            showCountryNames = document.getElementById('show-country-names').checked;
+            needsTextRedraw = true;
+            renderQueue.text = true;
+        }
+
+        function toggleTerrain() {
+            showTerrain = document.getElementById('show-terrain').checked;
+            processMap(true);
+        }
+
+        function toggleTradeNodes() {
+            showTradeNodes = document.getElementById('show-trade').checked;
+            processMap(true);
+        }
+
+        function toggleEditMode() {
+            editMode = document.getElementById('edit-mode').checked;
+            updateCursor();
+            
+            if (editMode) {
+                document.getElementById('country-manager-section').style.display = 'block';
+                updateCountryList();
+            } else {
+                document.getElementById('country-manager-section').style.display = 'none';
+                clearSelection();
+            }
+        }
+
+        function togglePerformance() {
+            const show = document.getElementById('show-performance').checked;
+            document.getElementById('performance-info').style.display = show ? 'block' : 'none';
+        }
+
+        // Mouse handling functions
+        function handleMouseDown(e) {
+            if (editMode && (isCtrlPressed || isShiftPressed)) {
+                return; // Don't start dragging in selection mode
+            }
+            startDrag(e);
+        }
+        
+        function handleClick(e) {
+            if (!mapImageData) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left - translateX) / scale);
+            const y = Math.floor((e.clientY - rect.top - translateY) / scale);
+            
+            if (x >= 0 && x < mapImageData.width && y >= 0 && y < mapImageData.height) {
+                const index = (y * mapImageData.width + x) * 4;
+                const r = mapImageData.data[index];
+                const g = mapImageData.data[index + 1];
+                const b = mapImageData.data[index + 2];
+                const colorKey = `${r},${g},${b}`;
+                const provinceId = provinceMap.get(colorKey);
+                
+                if (provinceId) {
+                    showProvinceInfo(provinceId);
+                }
+            }
+        }
+        
+        function handleKeyDown(e) {
+            if (e.key === 'Control') isCtrlPressed = true;
+            if (e.key === 'Shift') isShiftPressed = true;
+            if (e.key === 'Escape') clearSelection();
+            
+            updateCursor();
+        }
+        
+        function handleKeyUp(e) {
+            if (e.key === 'Control') isCtrlPressed = false;
+            if (e.key === 'Shift') isShiftPressed = false;
+            
+            updateCursor();
+        }
+        
+        function updateCursor() {
+            if (editMode && (isCtrlPressed || isShiftPressed)) {
+                canvas.classList.add('selecting');
+                canvas.classList.remove('grabbing');
+            } else {
+                canvas.classList.remove('selecting');
+            }
+        }
+
+        function startDrag(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            canvas.classList.add('grabbing');
+        }
+
+        function handleMouseMove(e) {
+            if (isDragging && !editMode) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                translateX += dx;
+                translateY += dy;
+                startX = e.clientX;
+                startY = e.clientY;
+                needsRedraw = true;
+                needsTextRedraw = true;
+                renderQueue.map = true;
+                renderQueue.text = true;
+            } else if (mapImageData) {
+                // Handle hover for province info
+                const rect = canvas.getBoundingClientRect();
+                const x = Math.floor((e.clientX - rect.left - translateX) / scale);
+                const y = Math.floor((e.clientY - rect.top - translateY) / scale);
+                
+                if (x >= 0 && x < mapImageData.width && y >= 0 && y < mapImageData.height) {
+                    const index = (y * mapImageData.width + x) * 4;
+                    const r = mapImageData.data[index];
+                    const g = mapImageData.data[index + 1];
+                    const b = mapImageData.data[index + 2];
+                    const colorKey = `${r},${g},${b}`;
+                    const provinceId = provinceMap.get(colorKey);
+                    
+                    if (provinceId !== hoveredProvince) {
+                        hoveredProvince = provinceId;
+                        if (provinceId) {
+                            showProvinceInfo(provinceId);
+                        }
+                    }
+                }
+            }
+        }
+
+        function endDrag() {
+            isDragging = false;
+            canvas.classList.remove('grabbing');
+        }
+
+        function handleZoom(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            
+            // Calculate the point to zoom into
+            const worldX = (mouseX - translateX) / scale;
+            const worldY = (mouseY - translateY) / scale;
+            
+            scale *= zoomFactor;
+            
+            // Adjust translation to zoom into the mouse position
+            translateX = mouseX - worldX * scale;
+            translateY = mouseY - worldY * scale;
+            
+            needsRedraw = true;
+            needsTextRedraw = true;
+            renderQueue.map = true;
+            renderQueue.text = true;
+            updateZoomDisplay();
+        }
+        
+        // Selection functions (simplified for basic functionality)
+        function clearSelection() {
+            selectedProvinces.clear();
+            updateSelectionDisplay();
+        }
+        
+        function updateSelectionDisplay() {
+            const count = selectedProvinces.size;
+            if (document.getElementById('selected-count')) {
+                document.getElementById('selected-count').textContent = count;
+            }
+            
+            if (count > 0) {
+                if (document.getElementById('selection-info')) {
+                    document.getElementById('selection-info').classList.add('active');
+                }
+                renderQueue.selection = true;
+            } else {
+                if (document.getElementById('selection-info')) {
+                    document.getElementById('selection-info').classList.remove('active');
+                }
+                selectionCtx.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+            }
+        }
+        
+        function quickAssignSelected() {
+            const tag = document.getElementById('quick-assign-tag').value.toUpperCase().trim();
+            if (!tag || tag.length !== 3) {
+                alert('Please enter a valid 3-letter country tag!');
+                return;
+            }
+            
+            if (selectedProvinces.size === 0) {
+                alert('No provinces selected!');
+                return;
+            }
+            
+            let count = 0;
+            selectedProvinces.forEach(provinceId => {
+                const data = provinceData.get(provinceId);
+                if (data) {
+                    data.owner = tag;
+                    data.controller = tag;
+                    data.modified = true;
+                    count++;
+                }
+            });
+            
+            // Add country name if it doesn't exist
+            if (!countryNames[tag]) {
+                const name = prompt(`Enter name for new country ${tag}:`, tag);
+                if (name) {
+                    countryNames[tag] = name.trim();
+                }
+            }
+            
+            // Add default color if it doesn't exist
+            if (!eu4Colors[tag]) {
+                eu4Colors[tag] = document.getElementById('new-country-color').value || '#FF0000';
+            }
+            
+            processMap(true);
+            updateStatus(`Assigned ${count} provinces to ${countryNames[tag] || tag}`);
+            document.getElementById('quick-assign-tag').value = '';
+        }
+        
+        // Country management functions
+        function updateCountryList() {
+            if (!editMode) {
+                document.getElementById('country-manager-section').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('country-manager-section').style.display = 'block';
+            
+            const countries = new Map();
+            provinceData.forEach(p => {
+                if (p.owner) {
+                    if (!countries.has(p.owner)) {
+                        countries.set(p.owner, 0);
+                    }
+                    countries.set(p.owner, countries.get(p.owner) + 1);
+                }
+            });
+            
+            const countryListDiv = document.getElementById('country-list');
+            countryListDiv.innerHTML = '';
+            
+            const sortedCountries = Array.from(countries.entries()).sort((a, b) => b[1] - a[1]);
+            
+            sortedCountries.forEach(([tag, count]) => {
+                const item = document.createElement('div');
+                item.className = 'country-item';
+                item.innerHTML = `
+                    <span>${countryNames[tag] || tag} (${tag}) - ${count} provinces</span>
+                    <div>
+                        <input type="color" class="color-picker" value="${eu4Colors[tag] || '#808080'}" 
+                               onchange="changeCountryColor('${tag}', this.value)">
+                        <button onclick="editCountry('${tag}')" style="width: auto; padding: 4px 8px; margin: 0 2px;">Edit</button>
+                        <button onclick="removeCountry('${tag}')" class="danger" style="width: auto; padding: 4px 8px; margin: 0 2px;">Remove</button>
+                    </div>
+                `;
+                countryListDiv.appendChild(item);
+            });
+        }
+        
+        function editCountry(tag) {
+            const newName = prompt(`Enter new name for ${tag}:`, countryNames[tag] || tag);
+            if (newName && newName.trim()) {
+                countryNames[tag] = newName.trim();
+                updateCountryList();
+                needsTextRedraw = true;
+                renderQueue.text = true;
+                updateStatus(`Updated country name: ${tag} → ${newName}`);
+            }
+        }
+        
+        function changeCountryColor(tag, color) {
+            eu4Colors[tag] = color;
+            fallbackColors.delete(tag);
+            processMap(true);
+            updateStatus(`Updated color for ${countryNames[tag] || tag}`);
+        }
+        
+        function removeCountry(tag) {
+            if (confirm(`Are you sure you want to remove ${countryNames[tag] || tag}? All provinces will become unowned.`)) {
+                let count = 0;
+                provinceData.forEach((data, id) => {
+                    if (data.owner === tag) {
+                        data.owner = null;
+                        data.controller = null;
+                        data.modified = true;
+                        count++;
+                    }
+                });
+                
+                delete countryNames[tag];
+                delete eu4Colors[tag];
+                fallbackColors.delete(tag);
+                
+                processMap(true);
+                updateStatus(`Removed ${tag}: ${count} provinces are now unowned`);
+            }
+        }
+        
+        function showAddCountryModal() {
+            document.getElementById('add-country-modal').style.display = 'block';
+        }
+        
+        function closeAddCountryModal() {
+            document.getElementById('add-country-modal').style.display = 'none';
+            document.getElementById('new-country-tag').value = '';
+            document.getElementById('new-country-name').value = '';
+            document.getElementById('new-country-color').value = '#FF0000';
+        }
+        
+        function addNewCountry() {
+            const tag = document.getElementById('new-country-tag').value.toUpperCase().trim();
+            const name = document.getElementById('new-country-name').value.trim();
+            const color = document.getElementById('new-country-color').value;
+            
+            if (!tag || tag.length !== 3) {
+                alert('Country tag must be exactly 3 letters!');
+                return;
+            }
+            
+            if (!name) {
+                alert('Please enter a country name!');
+                return;
+            }
+            
+            if (countryNames[tag] || eu4Colors[tag]) {
+                alert('This country tag already exists!');
+                return;
+            }
+            
+            countryNames[tag] = name;
+            eu4Colors[tag] = color;
+            
+            updateCountryList();
+            closeAddCountryModal();
+            updateStatus(`Added new country: ${name} (${tag})`);
+        }
+        
+        function exportChanges() {
+            const changes = {
+                modified_provinces: {},
+                country_names: countryNames,
+                country_colors: eu4Colors,
+                metadata: {
+                    export_date: new Date().toISOString(),
+                    total_modified: 0
+                }
+            };
+            
+            let modifiedCount = 0;
+            provinceData.forEach((data, id) => {
+                if (data.modified) {
+                    changes.modified_provinces[id] = data;
+                    modifiedCount++;
+                }
+            });
+            
+            changes.metadata.total_modified = modifiedCount;
+            
+            const blob = new Blob([JSON.stringify(changes, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `eu4_map_changes_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            updateStatus(`Exported ${modifiedCount} modified provinces`);
+        }
+        
+        // Province list function
+        function updateProvinceList() {
+            const listDiv = document.getElementById('province-list');
+            listDiv.innerHTML = '';
+            
+            if (provinceData.size === 0) return;
+            
+            const provinces = Array.from(provinceData.entries())
+                .sort((a, b) => a[0] - b[0])
+                .slice(0, 100); // Show first 100 for performance
+            
+            provinces.forEach(([id, data]) => {
+                const div = document.createElement('div');
+                div.className = 'province-item';
+                div.textContent = `${id}: ${data.name || 'Unnamed'} (${data.owner || 'Unowned'})`;
+                div.onclick = () => showProvinceInfo(id);
+                listDiv.appendChild(div);
+            });
+            
+            if (provinceData.size > 100) {
+                const moreDiv = document.createElement('div');
+                moreDiv.className = 'province-item';
+                moreDiv.textContent = `... and ${provinceData.size - 100} more provinces`;
+                moreDiv.style.fontStyle = 'italic';
+                moreDiv.style.color = '#999';
+                listDiv.appendChild(moreDiv);
+            }
+        }
+    </script>
+</body>
+</html>
